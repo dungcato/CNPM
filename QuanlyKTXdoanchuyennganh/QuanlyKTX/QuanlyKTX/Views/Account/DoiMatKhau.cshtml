@@ -1,0 +1,232 @@
+﻿@{
+    ViewData["Title"] = "Bảo mật & Mật khẩu";
+}
+
+<style>
+    .pw-page-wrap {
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 1rem;
+    }
+
+    .pw-card {
+        background: #fff;
+        border-radius: 24px; /* Bo góc mạnh cho card ngoài */
+        border: 1px solid #e2e8f0;
+        max-width: 450px;
+        width: 100%;
+        padding: 2.5rem 2rem;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    }
+
+    .pw-shield {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        background: #eff6ff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+    }
+
+        .pw-shield svg {
+            width: 28px;
+            height: 28px;
+            color: #3b82f6;
+        }
+
+    .pw-title {
+        text-align: center;
+        font-size: 22px;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 8px;
+    }
+
+    .pw-sub {
+        text-align: center;
+        font-size: 13px;
+        color: #64748b;
+        margin-bottom: 2rem;
+    }
+
+    .pw-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        color: #334155;
+        margin-bottom: 8px;
+    }
+
+    .pw-input-wrap {
+        position: relative;
+        margin-bottom: 1.25rem;
+    }
+
+        .pw-input-wrap input {
+            width: 100%;
+            padding: 12px 40px;
+            border-radius: 12px; /* Bo góc cho ô nhập liệu */
+            border: 1.5px solid #e2e8f0;
+            background: #f8fafc;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+            .pw-input-wrap input:focus {
+                border-color: #3b82f6;
+                background: #fff;
+                box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+            }
+
+    .pw-icon-left {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 16px;
+        color: #94a3b8;
+    }
+
+    .pw-toggle {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: #94a3b8;
+    }
+
+    .pw-submit {
+        width: 100%;
+        padding: 14px;
+        border: none;
+        border-radius: 12px; /* Bo góc cho nút bấm */
+        background: #1e3c72;
+        color: #fff;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 1rem;
+        transition: opacity 0.2s;
+    }
+
+        .pw-submit:hover {
+            opacity: 0.9;
+        }
+
+    .pw-back {
+        display: block;
+        text-align: center;
+        margin-top: 1.5rem;
+        font-size: 13px;
+        color: #64748b;
+        text-decoration: none;
+    }
+
+    /* Thanh sức mạnh mật khẩu gọn gàng */
+    .pw-strength-bar {
+        display: flex;
+        gap: 4px;
+        margin-top: 8px;
+    }
+
+    .pw-strength-seg {
+        flex: 1;
+        height: 4px;
+        border-radius: 2px;
+        background: #f1f5f9;
+    }
+</style>
+
+<div class="pw-page-wrap">
+    <div class="pw-card">
+        <div class="pw-shield">
+            <i data-lucide="shield-check"></i>
+        </div>
+
+        <h2 class="pw-title">Đổi Mật Khẩu</h2>
+        <p class="pw-sub">Nhập mật khẩu hiện tại và mật khẩu mới để cập nhật bảo mật.</p>
+
+        @if (ViewBag.Error != null)
+        {
+            <div style="background: #fff1f2; color: #e11d48; padding: 12px; border-radius: 10px; font-size: 13px; margin-bottom: 1.5rem; border: 1px solid #fecaca;">
+                @ViewBag.Error
+            </div>
+        }
+
+        <form asp-action="DoiMatKhau" method="post">
+            <div class="pw-label">Mật khẩu hiện tại</div>
+            <div class="pw-input-wrap">
+                <i data-lucide="lock" class="pw-icon-left"></i>
+                <input type="password" id="currentPassword" name="currentPassword" placeholder="Nhập mật khẩu hiện tại" required />
+                <button type="button" class="pw-toggle" onclick="toggleVis('currentPassword')">
+                    <i data-lucide="eye" id="eye-currentPassword"></i>
+                </button>
+            </div>
+
+            <div class="pw-label">Mật khẩu mới</div>
+            <div class="pw-input-wrap">
+                <i data-lucide="key-round" class="pw-icon-left"></i>
+                <input type="password" id="newPassword" name="newPassword" placeholder="Tạo mật khẩu mới" required oninput="checkStrength(this.value)" />
+                <button type="button" class="pw-toggle" onclick="toggleVis('newPassword')">
+                    <i data-lucide="eye" id="eye-newPassword"></i>
+                </button>
+                <div class="pw-strength-bar">
+                    <div class="pw-strength-seg" id="s1"></div>
+                    <div class="pw-strength-seg" id="s2"></div>
+                    <div class="pw-strength-seg" id="s3"></div>
+                    <div class="pw-strength-seg" id="s4"></div>
+                </div>
+            </div>
+
+            <div class="pw-label">Xác nhận mật khẩu mới</div>
+            <div class="pw-input-wrap">
+                <i data-lucide="check-circle" class="pw-icon-left"></i>
+                <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Nhập lại mật khẩu mới" required />
+            </div>
+
+            <button type="submit" class="pw-submit">
+                <i data-lucide="refresh-cw"></i> Cập nhật bảo mật
+            </button>
+
+            <a href="/Home/Index" class="pw-back">← Quay lại trang chủ</a>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Hàm ẩn hiện mật khẩu gọn nhẹ
+    function toggleVis(id) {
+        const input = document.getElementById(id);
+        input.type = input.type === 'password' ? 'text' : 'password';
+        // Có thể bổ sung đổi icon lucide ở đây nếu cần
+    }
+
+    function checkStrength(val) {
+        const segs = ['s1','s2','s3','s4'].map(id => document.getElementById(id));
+        segs.forEach(s => s.style.background = '#f1f5f9');
+        if (!val) return;
+
+        let score = 0;
+        if (val.length >= 6) score++;
+        if (val.length >= 10) score++;
+        if (/[A-Z]/.test(val) && /[0-9]/.test(val)) score++;
+        if (/[^A-Za-z0-9]/.test(val)) score++;
+
+        const colors = ['#ef4444', '#f59e0b', '#3b82f6', '#10b981'];
+        for (let i = 0; i < score; i++) segs[i].style.background = colors[score - 1];
+    }
+</script>

@@ -1,0 +1,220 @@
+﻿@model QuanlyKTX.Models.DashboardViewModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Trang chủ";
+}
+
+<div class="container-fluid p-0">
+
+    <!-- PHẦN 1: BANNER CHÀO MỪNG (GIỮ NGUYÊN GỐC) -->
+    <div class="row">
+        <div class="col-12">
+            <div class="welcome-banner dashboard-fade-in" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); padding: 40px 45px; border-radius: 20px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(30, 60, 114, 0.2); position: relative; overflow: hidden;">
+                <div style="position: absolute; right: 5%; top: -20px; width: 180px; height: 180px; background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 70%); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                    <i data-lucide="graduation-cap" class="bg-icon-float" style="width: 90px; height: 90px; color: rgba(255,255,255,0.15);"></i>
+                </div>
+
+                <h1 style="color: #ffffff; font-weight: 700; margin-bottom: 15px; font-size: 30px; letter-spacing: 0.5px; display: flex; align-items: center; gap: 12px; position: relative; z-index: 2;">
+                    Chào buổi sáng, @Model.SinhVien.HoTen!
+                    <i data-lucide="sun" style="color: #fbbf24; width: 34px; height: 34px;"></i>
+                </h1>
+
+                <div style="display: flex; gap: 15px; flex-wrap: wrap; position: relative; z-index: 2;">
+                    <span style="background: rgba(255,255,255,0.15); backdrop-filter: blur(5px); color: #ffffff; padding: 8px 18px; border-radius: 30px; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 8px; border: 1px solid rgba(255,255,255,0.2);">
+                        <i data-lucide="fingerprint" style="width: 16px; height: 16px; color: #93c5fd;"></i>
+                        Mã SV: @Model.SinhVien.Mssv
+                    </span>
+                    <span style="background: rgba(255,255,255,0.15); backdrop-filter: blur(5px); color: #ffffff; padding: 8px 18px; border-radius: 30px; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 8px; border: 1px solid rgba(255,255,255,0.2);">
+                        <i data-lucide="map-pin" style="width: 16px; height: 16px; color: #fca5a5;"></i>
+                        Phòng: @Model.TenPhong - @Model.TenToa
+                    </span>
+                    <span style="background: rgba(255,255,255,0.15); backdrop-filter: blur(5px); color: #ffffff; padding: 8px 18px; border-radius: 30px; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 8px; border: 1px solid rgba(255,255,255,0.2);">
+                        <i data-lucide="award" style="width: 16px; height: 16px; color: #fde047;"></i>
+                        Điểm rèn luyện: 95/100
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PHẦN 2: 4 THẺ THỐNG KÊ NHANH -->
+    <div class="grid-4-cols dashboard-fade-in delay-1" style="margin-bottom: 35px;">
+        <div class="stat-card icon-pulse-hover">
+            <div style="position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: #4f46e5;"></div>
+            <div class="circle-icon circle-icon-lg" style="background: #e0e7ff; color: #4f46e5;">
+                <i data-lucide="wallet" style="width: 30px; height: 30px;"></i>
+            </div>
+            <div>
+                <p style="color: #64748b; font-size: 13px; margin-bottom: 4px; font-weight: 600; text-transform: uppercase;">Số dư ví KTX</p>
+                <h3 style="color: #1e293b; margin: 0; font-size: 24px; font-weight: 700;">1,250K</h3>
+            </div>
+        </div>
+
+        <a href="@Url.Action("HoaDon", "GiaoDich")" style="text-decoration: none; display: block;">
+            <div class="stat-card icon-pulse-hover">
+                <div style="position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: #ef4444;"></div>
+                <div class="circle-icon circle-icon-lg" style="background: #fee2e2; color: #ef4444;">
+                    <i data-lucide="receipt" style="width: 30px; height: 30px;"></i>
+                </div>
+                <div>
+                    <p style="color: #64748b; font-size: 13px; margin-bottom: 4px; font-weight: 600; text-transform: uppercase;">Hóa đơn tháng này</p>
+                    <h3 style="color: #ef4444; margin: 0; font-size: 20px; font-weight: 700;">@Model.TongTienHoaDon.ToString("N0") đ</h3>
+                </div>
+            </div>
+        </a>
+
+        <div class="stat-card icon-pulse-hover">
+            <div style="position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: #10b981;"></div>
+            <div class="circle-icon circle-icon-lg" style="background: #dcfce7; color: #10b981;">
+                <i data-lucide="shield-check" style="width: 30px; height: 30px;"></i>
+            </div>
+            <div>
+                <p style="color: #64748b; font-size: 13px; margin-bottom: 4px; font-weight: 600; text-transform: uppercase;">Trạng thái lưu trú</p>
+                <h3 style="color: #1e293b; margin: 0; font-size: 20px; font-weight: 700;">Hợp lệ</h3>
+            </div>
+        </div>
+
+        <a href="@Url.Action("TheoDoi", "PhanAnh")" style="text-decoration: none; display: block;">
+            <div class="stat-card icon-pulse-hover">
+                <div style="position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: #f59e0b;"></div>
+                <div class="circle-icon circle-icon-lg" style="background: #fef3c7; color: #f59e0b;">
+                    <i data-lucide="message-square-dashed" style="width: 30px; height: 30px;"></i>
+                </div>
+                <div>
+                    <p style="color: #64748b; font-size: 13px; margin-bottom: 4px; font-weight: 600; text-transform: uppercase;">Đơn chờ xử lý</p>
+                    <h3 style="color: #1e293b; margin: 0; font-size: 24px; font-weight: 700;">@Model.SoPhanAnhCho.ToString("D2")</h3>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <!-- PHẦN 3: THÔNG BÁO & LỊCH SỬ NHẬN DIỆN CỔNG -->
+    <div class="grid-2-cols dashboard-fade-in delay-3" style="margin-bottom: 35px;">
+        <!-- Bảng Thông báo -->
+        <div style="background: white; border-radius: 20px; padding: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.02);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 15px;">
+                <h3 style="color: #1e293b; margin: 0; font-size: 18px; font-weight: 700;">Thông báo mới nhất</h3>
+                <a href="@Url.Action("Index", "ThongBao")" style="font-size: 13px; color: #4f46e5; text-decoration: none; font-weight: 600;">Xem tất cả</a>
+            </div>
+            <ul style="list-style: none; padding: 0; margin: 0;">
+                @foreach (var tb in Model.DanhSachThongBao)
+                {
+                    <li class="list-item" style="margin-bottom: 15px;">
+                        <a href="@Url.Action("ChiTiet", "ThongBao", new { id = tb.ThongBaoId })" style="display: flex; gap: 15px; align-items: flex-start; text-decoration: none; color: inherit;">
+                            <div class="circle-icon circle-icon-md" style="background: #e0f2fe; color: #0ea5e9;">
+                                <i data-lucide="bell" style="width: 20px; height: 20px;"></i>
+                            </div>
+                            <div style="flex: 1;">
+                                <h4 style="margin: 0; font-size: 15px; font-weight: 600; color: #0f172a;">@tb.TieuDe</h4>
+                                <p style="margin: 5px 0; font-size: 13px; color: #475569;">@tb.NoiDung</p>
+                                <span style="font-size: 12px; color: #94a3b8;">@tb.NgayGui?.ToString("dd/MM/yyyy")</span>
+                            </div>
+                        </a>
+                    </li>
+                }
+            </ul>
+        </div>
+
+        <!-- Bảng Lịch sử nhận diện Cổng (An ninh) -->
+        <div style="background: white; border-radius: 20px; padding: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.02);">
+            <h3 style="color: #1e293b; margin-bottom: 20px; font-size: 18px; font-weight: 700;">Lịch sử nhận diện Cổng</h3>
+            <ul style="list-style: none; padding: 0; margin: 0;">
+                @foreach (var log in Model.LichSuAnNinh)
+                {
+                    <li class="list-item" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div class="circle-icon circle-icon-sm" style="background: #ecfdf5; color: #10b981;">
+                                <i data-lucide="log-in" style="width: 16px; height: 16px;"></i>
+                            </div>
+                            <div>
+                                <p style="margin: 0; font-weight: 600; font-size: 14px;">@log.LoaiSuKien</p>
+                                <p style="margin: 0; font-size: 12px; color: #64748b;">Xác thực: AI FaceID</p>
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <p style="margin: 0; font-weight: 600;">@log.ThoiGian?.ToString("HH:mm")</p>
+                            <p style="margin: 0; font-size: 11px; color: #94a3b8;">@log.ThoiGian?.ToString("dd/MM")</p>
+                        </div>
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
+
+    <!-- PHẦN 4: TIẾN ĐỘ YÊU CẦU (PHÂN BIỆT MÀU XANH/VÀNG) -->
+    <div style="background: white; border-radius: 20px; padding: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); margin-bottom: 35px;">
+        <h3 style="color: #1e293b; margin-bottom: 25px; font-size: 18px; font-weight: 700; display: flex; align-items: center; gap: 10px;">
+            <i data-lucide="activity" style="color: #4f46e5;"></i> Tiến độ yêu cầu (Phản ánh & Chuyển phòng)
+        </h3>
+        <div class="row">
+            @if (Model.DanhSachYeuCauGanDay != null && Model.DanhSachYeuCauGanDay.Any())
+            {
+                foreach (var item in Model.DanhSachYeuCauGanDay)
+                {
+                    // Logic phân biệt màu sắc: Đã hoàn thành -> Xanh lá | Còn lại -> Vàng cam
+                    bool isDone = (item.TrangThai == "Đã hoàn thành" || item.TrangThai == "Hoàn thành");
+                    string bgColor = isDone ? "#f0fdf4" : "#fffbeb";
+                    string borderColor = isDone ? "#dcfce7" : "#fef3c7";
+                    string themeColor = isDone ? "#10b981" : "#f59e0b";
+                    string iconName = isDone ? "check-circle-2" : "clock";
+
+                    <div class="col-md-6 mb-3">
+                        <div style="padding: 20px; border-radius: 15px; background: @bgColor; border: 1px solid @borderColor; transition: all 0.3s ease;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <span style="background: @themeColor; color: white; padding: 3px 12px; border-radius: 20px; font-size: 10px; font-weight: 700; text-transform: uppercase;">
+                                    @item.LoaiSuCo
+                                </span>
+                                <span style="font-size: 11px; color: #94a3b8;">@item.NgayGui?.ToString("dd/MM")</span>
+                            </div>
+                            <h5 style="margin: 0; font-size: 15px; font-weight: 600; color: #1e293b;">@item.TieuDe</h5>
+                            <div style="margin-top: 12px; display: flex; align-items: center; gap: 8px;">
+                                <i data-lucide="@iconName" style="width: 16px; color: @themeColor;"></i>
+                                <span style="font-size: 13px; font-weight: 600; color: @themeColor;">@item.TrangThai</span>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="col-12 text-center py-4">
+                    <p style="color: #94a3b8; font-style: italic;">Bạn chưa có yêu cầu nào đang được xử lý.</p>
+                </div>
+            }
+        </div>
+        <div class="text-center mt-3">
+            <a href="@Url.Action("TheoDoi", "PhanAnh")" style="text-decoration: none; font-size: 13px; font-weight: 600; color: #64748b; padding: 10px 20px; border: 1px dashed #e2e8f0; border-radius: 12px; display: inline-block;">
+                Xem lịch sử đơn
+            </a>
+        </div>
+    </div>
+
+    <!-- PHẦN 5: TÀI CHÍNH & DỊCH VỤ NHANH (DƯỚI CÙNG) -->
+    <div style="background: white; border-radius: 20px; padding: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.02);">
+        <h3 style="color: #1e293b; margin-bottom: 20px; font-size: 18px; font-weight: 700;">Tài chính & Dịch vụ nhanh</h3>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <a href="@Url.Action("HoaDon", "GiaoDich")" style="display: flex; align-items: center; padding: 20px; background: #f0fdf4; border-radius: 15px; text-decoration: none; border: 1px solid #dcfce7;">
+                    <div class="circle-icon" style="background: white; color: #10b981; margin-right: 15px;">
+                        <i data-lucide="receipt"></i>
+                    </div>
+                    <div>
+                        <div style="font-size: 12px; color: #15803d; font-weight: 700; text-transform: uppercase;">Hóa đơn chưa đóng</div>
+                        <div style="font-size: 18px; font-weight: 800; color: #166534;">@Model.TongTienHoaDon.ToString("N0") đ</div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-6 mb-3">
+                <a href="@Url.Action("DangKyChuyenPhong", "Phong")" style="display: flex; align-items: center; padding: 20px; background: #eff6ff; border-radius: 15px; text-decoration: none; border: 1px solid #dbeafe;">
+                    <div class="circle-icon" style="background: white; color: #3b82f6; margin-right: 15px;">
+                        <i data-lucide="move"></i>
+                    </div>
+                    <div>
+                        <div style="font-size: 12px; color: #1e40af; font-weight: 700; text-transform: uppercase;">Chỗ ở & Lưu trú</div>
+                        <div style="font-size: 16px; font-weight: 700; color: #1e3a8a;">Đăng ký chuyển phòng ngay</div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

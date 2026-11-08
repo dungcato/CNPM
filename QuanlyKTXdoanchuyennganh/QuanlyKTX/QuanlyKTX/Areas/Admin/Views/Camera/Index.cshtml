@@ -1,0 +1,464 @@
+﻿@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "AI Security Dashboard";
+}
+
+<style>
+    .page-title {
+        font-size: 1.8rem;
+        font-weight: 900;
+        color: #1e293b;
+        margin: 0 0 15px 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: 2.5fr 1fr;
+        gap: 25px;
+    }
+
+    /* PANEL CAMERA */
+    .cam-section {
+        background: #ffffff;
+        border-radius: 20px;
+        padding: 25px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        border: 1px solid #f1f5f9;
+    }
+
+    .control-panel {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 20px;
+        border-bottom: 2px dashed #e2e8f0;
+    }
+
+    .btn-trigger {
+        background: linear-gradient(135deg, #3b82f6, #2563eb);
+        color: white;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 1rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        transition: all 0.3s ease;
+    }
+
+        .btn-trigger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-trigger:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+    /* MÀN HÌNH CAMERA - TỐI ƯU GPU */
+    .cam-viewer {
+        background: #0f172a;
+        width: 100%;
+        height: 520px;
+        border-radius: 16px;
+        overflow: hidden;
+        position: relative;
+        border: 4px solid #1e293b;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+    }
+
+        .cam-viewer img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: translateZ(0);
+            backface-visibility: hidden;
+            perspective: 1000px;
+            will-change: transform, contents;
+        }
+
+    .scanner-line {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 4px;
+        background: #38bdf8;
+        box-shadow: 0 0 20px 5px rgba(56, 189, 248, 0.6);
+        display: none;
+        z-index: 10;
+        will-change: top;
+    }
+
+    @@keyframes scanAnim {
+        0% {
+            top: 0;
+        }
+
+        50% {
+            top: 100%;
+        }
+
+        100% {
+            top: 0;
+        }
+    }
+
+    /* PANEL LỊCH SỬ */
+    .history-section {
+        background: white;
+        border-radius: 20px;
+        display: flex;
+        flex-direction: column;
+        height: 650px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        border: 1px solid #f1f5f9;
+        overflow: hidden;
+    }
+
+    .history-header {
+        padding: 15px 20px;
+        background: linear-gradient(to right, #fef2f2, #fff1f2);
+        border-bottom: 1px solid #fecaca;
+        color: #dc2626;
+        font-weight: 800;
+        font-size: 1.1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    /* INPUT LỌC NGÀY THÁNG */
+    .date-filter {
+        border: 1px solid #fca5a5;
+        border-radius: 8px;
+        padding: 6px 10px;
+        font-size: 0.85rem;
+        color: #b91c1c;
+        outline: none;
+        background: white;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+        .date-filter:focus {
+            border-color: #ef4444;
+            box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+        }
+
+    .log-list {
+        padding: 15px;
+        overflow-y: auto;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        background: #fafaf9;
+    }
+
+        .log-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .log-list::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+    /* THẺ LỊCH SỬ */
+    .log-card {
+        flex-shrink: 0; /* Khắc phục lỗi bị bóp méo chèn ép khi quá nhiều thẻ */
+        display: flex;
+        gap: 15px;
+        padding: 15px;
+        border-radius: 12px;
+        border: 1px solid #fecaca;
+        background: white;
+        position: relative;
+        overflow: hidden;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+        .log-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(220, 38, 38, 0.15);
+            border-color: #ef4444;
+        }
+
+        .log-card::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 4px;
+            height: 100%;
+            background: #ef4444;
+        }
+
+        .log-card img {
+            width: 75px;
+            height: 75px;
+            border-radius: 8px;
+            object-fit: cover;
+            border: 1px solid #e2e8f0;
+        }
+
+    .log-card-info {
+        flex: 1;
+    }
+
+        .log-card-info h4 {
+            margin: 0 0 5px 0;
+            font-size: 0.95rem;
+            color: #b91c1c;
+            font-weight: 800;
+        }
+
+        .log-card-info p {
+            margin: 0 0 3px 0;
+            font-size: 0.8rem;
+            color: #64748b;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .log-card-info .desc {
+            color: #0f172a;
+            font-weight: 500;
+            font-size: 0.85rem;
+        }
+
+    .badge-danger {
+        background: #fee2e2;
+        color: #ef4444;
+        padding: 2px 8px;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        margin-left: auto;
+        height: fit-content;
+    }
+</style>
+
+<h2 class="page-title"><i data-lucide="shield-check" style="color: #3b82f6; width: 32px; height: 32px;"></i> AI Security Dashboard</h2>
+
+<div class="dashboard-grid">
+    <div class="cam-section">
+        <div class="control-panel">
+            <div>
+                <h3 style="margin: 0 0 5px 0; color: #1e293b; font-weight: 800; font-size: 1.3rem;">Cổng Chính KTX</h3>
+                <p style="margin: 0; color: #64748b; font-size: 0.9rem;">Camera đang giám sát 24/7. Nhấn nút để kích hoạt AI nhận diện.</p>
+            </div>
+            <button id="btnTrigger" class="btn-trigger" onclick="activateCamera()">
+                <i data-lucide="scan-face"></i> Kích Hoạt Quét AI (6s)
+            </button>
+        </div>
+
+        <div class="cam-viewer" id="camContainer">
+            <div class="scanner-line" id="scannerLine"></div>
+            <img id="liveFeed" src="/api/Ai/camera-stream" onerror="handleImageError(this)" decoding="async" loading="eager" fetchpriority="high" />
+        </div>
+    </div>
+
+    <div class="history-section">
+        <div class="history-header">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <i data-lucide="alert-octagon"></i> Lịch Sử Xâm Nhập
+            </div>
+            <input type="date" id="dateFilter" class="date-filter" onchange="filterHistory()" title="Lọc theo ngày" />
+        </div>
+        <div class="log-list" id="strangerLogs">
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+
+    <script>
+        if (typeof lucide !== 'undefined') { lucide.createIcons(); }
+
+        let isSignalRConnected = false;
+
+        function handleImageError(img) {
+            img.src = 'https://placehold.co/640x480/0f172a/38bdf8?text=STANDBY+(VUI+LONG+BAT+CAMERA)';
+        }
+
+        // KẾT NỐI SIGNALR
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/cameraHub")
+            .withAutomaticReconnect()
+            .build();
+
+        connection.on("NhanKetQuaKhuonMat", function (result) {
+            resetUIState();
+
+            if (result.status === "Success") {
+                Swal.fire({
+                    title: result.title,
+                    text: result.message,
+                    icon: "success",
+                    background: '#f0fdf4',
+                    color: '#16a34a',
+                    timer: 3000,
+                    showConfirmButton: false,
+                    backdrop: `rgba(22, 163, 74, 0.2)`
+                });
+            }
+            else if (result.status === "Danger") {
+                Swal.fire({
+                    title: result.title,
+                    text: result.message,
+                    icon: "error",
+                    imageUrl: result.img,
+                    imageWidth: 320,
+                    background: '#fef2f2',
+                    color: '#dc2626',
+                    backdrop: `rgba(220, 38, 38, 0.4)`
+                });
+                loadStrangerHistory();
+            }
+        });
+
+        connection.start()
+            .then(() => { isSignalRConnected = true; })
+            .catch(err => console.error("SignalR Error:", err));
+
+        function activateCamera() {
+            const btn = document.getElementById('btnTrigger');
+            const scanner = document.getElementById('scannerLine');
+
+            btn.disabled = true;
+            btn.innerHTML = `<i class="spinner-border spinner-border-sm" style="width: 1rem; height: 1rem;"></i> Đang phân tích...`;
+
+            scanner.style.display = 'block';
+            scanner.style.animation = 'scanAnim 2s infinite linear';
+
+            fetch('/api/Ai/kich-hoat-camera', { method: 'POST' })
+                .catch(err => {
+                    Swal.fire("Lỗi", "Trạm AI Python đang tắt hoặc bị lỗi kết nối.", "error");
+                    resetUIState();
+                });
+
+            setTimeout(() => {
+                if(document.getElementById('btnTrigger').disabled) {
+                    resetUIState();
+                }
+            }, 8000);
+        }
+
+        function resetUIState() {
+            const btn = document.getElementById('btnTrigger');
+            btn.disabled = false;
+            // Trả lại đúng tên nút mới khi quét xong
+            btn.innerHTML = `<i data-lucide="scan-face"></i> Kích Hoạt Quét AI `;
+            document.getElementById('scannerLine').style.display = 'none';
+            lucide.createIcons();
+        }
+
+        function viewStrangerDetail(imgUrl, time, content) {
+            Swal.fire({
+                title: 'CHI TIẾT XÂM NHẬP',
+                html: `
+                    <div style="text-align: left; font-size: 0.95rem; color: #334155;">
+                        <p style="margin-bottom: 8px;"><strong style="color: #0f172a;">Thời gian:</strong> <span style="background: #e2e8f0; padding: 2px 6px; border-radius: 4px;">${time}</span></p>
+                        <p style="margin-bottom: 8px;"><strong style="color: #0f172a;">Mức độ:</strong> <span style="color: #ef4444; font-weight: bold;">Nguy Hiểm 🔴</span></p>
+                        <p style="margin-bottom: 15px;"><strong style="color: #0f172a;">Ghi chú:</strong> ${content}</p>
+                        <hr style="border-color: #cbd5e1;">
+                        <p style="text-align: center; margin: 10px 0; font-weight: bold; color: #b91c1c;">📸 ẢNH VẬT CHỨNG TỪ CAMERA</p>
+                        <img src="${imgUrl}" style="width: 100%; border-radius: 10px; border: 3px solid #fecaca; box-shadow: 0 4px 10px rgba(0,0,0,0.1);" onerror="this.src='https://placehold.co/640x480?text=NO+IMAGE'" />
+                    </div>
+                `,
+                width: 600,
+                confirmButtonText: 'Đóng',
+                confirmButtonColor: '#3b82f6',
+                background: '#ffffff'
+            });
+        }
+
+        // HÀM LỌC LỊCH SỬ THEO NGÀY THÁNG
+        function filterHistory() {
+            const filterVal = document.getElementById('dateFilter').value; // Trả về định dạng YYYY-MM-DD
+            let searchStr = "";
+
+            if (filterVal) {
+                const parts = filterVal.split('-');
+                searchStr = `${parts[2]}/${parts[1]}/${parts[0]}`; // Chuyển thành DD/MM/YYYY để khớp với C#
+            }
+
+            const cards = document.querySelectorAll('.log-card');
+            let hasVisible = false;
+
+            cards.forEach(card => {
+                const timeText = card.querySelector('.time-text').innerText;
+                if (!searchStr || timeText.includes(searchStr)) {
+                    card.style.display = 'flex';
+                    hasVisible = true;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            // Hiển thị câu thông báo nếu ngày đó không có ai vi phạm
+            let noDataMsg = document.getElementById('noDataMsg');
+            if (!hasVisible && cards.length > 0) {
+                if(!noDataMsg) {
+                    document.getElementById('strangerLogs').insertAdjacentHTML('beforeend', `<div id="noDataMsg" style="text-align:center; color:#94a3b8; margin-top:50px;">Không có cảnh báo an ninh nào trong ngày này.</div>`);
+                } else {
+                    noDataMsg.style.display = 'block';
+                }
+            } else if (noDataMsg) {
+                noDataMsg.style.display = 'none';
+            }
+        }
+
+        function loadStrangerHistory() {
+            fetch('/api/Ai/lich-su-an-ninh')
+                .then(res => res.json())
+                .then(data => {
+                    let html = '';
+                    if (data.length === 0) {
+                        html = '<div style="text-align:center; color:#94a3b8; margin-top:50px;">Hệ thống an toàn. Chưa ghi nhận sự cố.</div>';
+                    } else {
+                        data.forEach(item => {
+                            let safeImg = item.hinhAnh ? item.hinhAnh : "https://placehold.co/70x70?text=NO+IMG";
+                            html += `
+                                <div class="log-card" onclick="viewStrangerDetail('${safeImg}', '${item.thoiGian}', '${item.noiDung}')" title="Click để xem chi tiết">
+                                    <img src="${safeImg}" onerror="this.src='https://placehold.co/70x70?text=NO+IMG'" />
+                                    <div class="log-card-info">
+                                        <h4>CẢNH BÁO AN NINH</h4>
+                                        <p class="time-text"><i data-lucide="clock" style="width:12px;"></i> ${item.thoiGian}</p>
+                                        <p class="desc">${item.noiDung}</p>
+                                    </div>
+                                    <span class="badge-danger">Mới</span>
+                                </div>
+                            `;
+                        });
+                    }
+                    document.getElementById('strangerLogs').innerHTML = html;
+                    lucide.createIcons();
+                    filterHistory(); 
+                });
+        }
+
+        loadStrangerHistory();
+    </script>
+}

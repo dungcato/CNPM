@@ -1,0 +1,585 @@
+﻿@model QuanlyKTX.Models.ThongBao
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = Model.TieuDe;
+}
+
+<style>
+    @@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap');
+
+    .nb-page {
+        font-family: 'Be Vietnam Pro', sans-serif;
+        background: #eef2f7;
+        padding: 36px 20px;
+        min-height: 100vh;
+    }
+
+    .nb-card {
+        background: #fff;
+        border-radius: 18px;
+        border: 1px solid #d0dff0;
+        max-width: 960px;
+        margin: 0 auto;
+        overflow: hidden;
+        box-shadow: 0 8px 32px rgba(26, 79, 160, 0.09), 0 1px 4px rgba(0,0,0,0.04);
+    }
+
+    .nb-header {
+        background: linear-gradient(135deg, #1a3f8f 0%, #1e57bf 55%, #2470d4 100%);
+        padding: 36px 44px 30px;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .nb-header::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.05);
+            pointer-events: none;
+        }
+
+        .nb-header::after {
+            content: '';
+            position: absolute;
+            bottom: -70px;
+            right: 80px;
+            width: 280px;
+            height: 280px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.04);
+            pointer-events: none;
+        }
+
+    .nb-header-watermark {
+        position: absolute;
+        right: 40px;
+        top: 20px;
+        font-size: 64px;
+        font-weight: 900;
+        color: rgba(255,255,255,0.08);
+        letter-spacing: -3px;
+        user-select: none;
+        pointer-events: none;
+    }
+
+    .nb-badge-row {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        position: relative;
+        z-index: 1;
+    }
+
+    .nb-badge {
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.7px;
+        text-transform: uppercase;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .badge-TaiChinh {
+        background: rgba(255,255,255,0.18);
+        color: #d4eeff;
+        border: 1px solid rgba(255,255,255,0.28);
+    }
+
+    .badge-BaoTri {
+        background: rgba(255,255,255,0.18);
+        color: #d4eeff;
+        border: 1px solid rgba(255,255,255,0.28);
+    }
+
+    .badge-SuKien {
+        background: rgba(255,255,255,0.18);
+        color: #d4eeff;
+        border: 1px solid rgba(255,255,255,0.28);
+    }
+
+    .badge-urgent {
+        background: #fff3e0;
+        color: #c84b00;
+        border: 1px solid #ffcc80;
+    }
+
+    .nb-title {
+        font-size: 26px;
+        font-weight: 800;
+        color: #fff;
+        margin: 0 0 18px;
+        line-height: 1.3;
+        letter-spacing: -0.3px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .nb-meta {
+        display: flex;
+        gap: 28px;
+        flex-wrap: wrap;
+        position: relative;
+        z-index: 1;
+    }
+
+        .nb-meta span {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 13px;
+            color: rgba(255,255,255,0.78);
+        }
+
+            .nb-meta span b {
+                color: #fff;
+                font-weight: 600;
+            }
+
+            .nb-meta span i[data-lucide] {
+                width: 15px;
+                height: 15px;
+                opacity: 0.75;
+            }
+
+    .nb-accent-bar {
+        height: 3px;
+        background: linear-gradient(90deg, #1a3f8f 0%, #4fa3e0 55%, transparent 100%);
+    }
+
+    .nb-body {
+        padding: 32px 44px 28px;
+    }
+
+    .nb-stat-row {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin-bottom: 26px;
+    }
+
+    .nb-stat-card {
+        background: #f0f6ff;
+        border: 1px solid #c5d9f0;
+        border-radius: 12px;
+        padding: 14px 16px;
+        text-align: center;
+    }
+
+    .nb-stat-num {
+        font-size: 20px;
+        font-weight: 800;
+        color: #1a3f8f;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+    }
+
+        .nb-stat-num i[data-lucide] {
+            width: 20px;
+            height: 20px;
+            color: #1a3f8f;
+        }
+
+    .nb-stat-label {
+        font-size: 11px;
+        color: #5b7db5;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 600;
+        margin-top: 4px;
+    }
+
+    .nb-recipient {
+        background: #f0f6ff;
+        border-left: 3px solid #1a3f8f;
+        border-radius: 0 10px 10px 0;
+        padding: 13px 18px;
+        margin-bottom: 22px;
+        font-size: 14px;
+        color: #1e3a6e;
+    }
+
+        .nb-recipient b {
+            color: #1a3f8f;
+        }
+
+    .nb-content-box {
+        background: #fafcff;
+        border: 1px solid #dce8f5;
+        border-radius: 12px;
+        padding: 22px 26px;
+        font-size: 15px;
+        color: #334155;
+        line-height: 1.85;
+        margin-bottom: 22px;
+    }
+
+        .nb-content-box b,
+        .nb-content-box strong {
+            color: #1a3f8f;
+            font-weight: 700;
+        }
+
+        .nb-content-box table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin: 20px 0;
+            border-radius: 10px;
+            border: 1px solid #dce8f5;
+            overflow: hidden;
+        }
+
+        .nb-content-box th {
+            background: #f0f6ff;
+            padding: 12px 14px;
+            text-align: left;
+            font-size: 13px;
+            color: #1a3f8f;
+            border-bottom: 1px solid #dce8f5;
+        }
+
+        .nb-content-box td {
+            padding: 12px 14px;
+            border-bottom: 1px solid #eef4fb;
+            font-size: 14px;
+        }
+
+    .nb-payment-box {
+        background: #fffbf0;
+        border: 1px solid #ffe082;
+        border-radius: 12px;
+        padding: 20px 24px;
+        margin-bottom: 22px;
+    }
+
+    .nb-payment-title {
+        font-size: 14px;
+        font-weight: 700;
+        color: #c84b00;
+        margin-bottom: 14px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+        .nb-payment-title i[data-lucide] {
+            width: 16px;
+            height: 16px;
+        }
+
+    .nb-payment-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13.5px;
+        color: #5d4037;
+        padding: 7px 0;
+        border-bottom: 1px dashed #ffe082;
+    }
+
+        .nb-payment-row:last-child {
+            border-bottom: none;
+        }
+
+        .nb-payment-row b {
+            color: #bf360c;
+        }
+
+        .nb-payment-row i[data-lucide] {
+            width: 15px;
+            height: 15px;
+            color: #e65100;
+            flex-shrink: 0;
+        }
+
+    .nb-attachment {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 16px 20px;
+        border: 1px solid #dce8f5;
+        border-radius: 12px;
+        background: #f8fbff;
+        margin-top: 8px;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+        .nb-attachment:hover {
+            border-color: #1a3f8f;
+            box-shadow: 0 4px 16px rgba(26,63,143,0.08);
+        }
+
+    .nb-attachment-icon {
+        background: #dce8f5;
+        color: #1a3f8f;
+        padding: 10px;
+        border-radius: 10px;
+        display: flex;
+    }
+
+        .nb-attachment-icon i[data-lucide] {
+            width: 24px;
+            height: 24px;
+        }
+
+    .nb-footer {
+        padding: 20px 44px;
+        background: #f5f9fe;
+        border-top: 1px solid #dce8f5;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .nb-footer-brand {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 12px;
+        color: #7a9abf;
+        font-weight: 500;
+    }
+
+    .nb-footer-brand-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #4fa3e0;
+    }
+
+    .nb-btn {
+        padding: 10px 22px;
+        border-radius: 10px;
+        font-size: 13.5px;
+        font-weight: 700;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s;
+        text-decoration: none !important;
+        font-family: 'Be Vietnam Pro', sans-serif;
+        border: none;
+    }
+
+        .nb-btn i[data-lucide] {
+            width: 15px;
+            height: 15px;
+        }
+
+    .btn-back {
+        background: #fff;
+        color: #64748b;
+        border: 1px solid #dce4ed;
+    }
+
+        .btn-back:hover {
+            background: #f0f4f8;
+            color: #1e293b;
+        }
+
+    .btn-print {
+        background: #f0f4f8;
+        color: #475569;
+        border: 1px solid #dce4ed;
+    }
+
+        .btn-print:hover {
+            background: #e2eaf4;
+        }
+
+    .btn-primary-tb {
+        background: #1a3f8f;
+        color: #fff !important;
+        box-shadow: 0 4px 14px rgba(26,63,143,0.28);
+    }
+
+        .btn-primary-tb:hover {
+            background: #163474;
+            box-shadow: 0 6px 18px rgba(26,63,143,0.35);
+            transform: translateY(-1px);
+        }
+
+    @@media print {
+        .nb-page {
+            padding: 0;
+            background: white;
+        }
+
+        .nb-card {
+            box-shadow: none;
+            border: none;
+            border-radius: 0;
+        }
+
+        .nb-footer {
+            display: none;
+        }
+
+        .nb-header {
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+    }
+</style>
+
+<div class="nb-page">
+    <div class="nb-card dashboard-fade-in">
+
+        @* Header *@
+        <div class="nb-header">
+            <div class="nb-header-watermark">ĐHV</div>
+
+            <div class="nb-badge-row">
+                <span class="nb-badge badge-@(Model.LoaiThongBao == "Tài chính" ? "TaiChinh" : (Model.LoaiThongBao == "Bảo trì" ? "BaoTri" : "SuKien"))">
+                    <i data-lucide="tag" style="width:13px;height:13px;"></i> @Model.LoaiThongBao
+                </span>
+                <span class="nb-badge badge-urgent">
+                    <i data-lucide="alert-circle" style="width:13px;height:13px;"></i> Quan trọng
+                </span>
+            </div>
+
+            <h1 class="nb-title">@Model.TieuDe</h1>
+
+            <div class="nb-meta">
+                <span>
+                    <i data-lucide="calendar"></i>
+                    <b>Ngày gửi:</b> @Model.NgayGui?.ToString("dd/MM/yyyy - HH:mm")
+                </span>
+                <span>
+                    <i data-lucide="user-check"></i>
+                    <b>Người gửi:</b> Ban Quản Lý KTX
+                </span>
+            </div>
+        </div>
+
+        <div class="nb-accent-bar"></div>
+
+        @* Body *@
+        <div class="nb-body">
+
+            @* 3 Stat Cards *@
+            <div class="nb-stat-row">
+                <div class="nb-stat-card">
+                    <div class="nb-stat-num">@Model.NgayGui?.ToString("dd/MM")</div>
+                    <div class="nb-stat-label">Ngày gửi</div>
+                </div>
+                <div class="nb-stat-card">
+                    <div class="nb-stat-num">@(Model.DoiTuongNhan ?? "Tất cả")</div>
+                    <div class="nb-stat-label">Đối tượng</div>
+                </div>
+                <div class="nb-stat-card">
+                    <div class="nb-stat-num">
+                        <i data-lucide="bell-ring"></i>
+                    </div>
+                    <div class="nb-stat-label">Đang hiệu lực</div>
+                </div>
+            </div>
+
+            @* Kính gửi *@
+            <div class="nb-recipient">
+                <b>Kính gửi:</b> @Model.DoiTuongNhan
+                @if (!string.IsNullOrEmpty(Model.ChiTietDoiTuong))
+                {
+                    <span style="color:#5b7db5;"> — @Model.ChiTietDoiTuong</span>
+                }
+            </div>
+
+            @* Nội dung chính *@
+            <div class="nb-content-box">
+                @Html.Raw(Model.NoiDung)
+            </div>
+
+            @* Thông tin thanh toán (chỉ Tài chính) *@
+            @if (Model.LoaiThongBao == "Tài chính")
+            {
+                <div class="nb-payment-box">
+                    <div class="nb-payment-title">
+                        <i data-lucide="credit-card"></i> Thông tin thanh toán
+                    </div>
+                    <div class="nb-payment-row">
+                        <i data-lucide="landmark"></i>
+                        Ngân hàng: <b>Vietcombank</b>
+                    </div>
+                    <div class="nb-payment-row">
+                        <i data-lucide="hash"></i>
+                        Số tài khoản: <b>1028 888 888</b>
+                    </div>
+                    <div class="nb-payment-row">
+                        <i data-lucide="file-text"></i>
+                        Nội dung CK: <b>KTX @Model.ThongBaoId [MSSV]</b>
+                    </div>
+                </div>
+            }
+
+            @* File đính kèm *@
+            @if (!string.IsNullOrEmpty(Model.FileDinhKem))
+            {
+                <div class="nb-attachment">
+                    <div class="nb-attachment-icon">
+                        <i data-lucide="file-text"></i>
+                    </div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 700; color: #1e293b; font-size: 14.5px;">
+                            @Model.FileDinhKem.Split('/').Last()
+                        </div>
+                        <div style="font-size: 12.5px; color: #64748b; margin-top: 2px;">
+                            Tài liệu đính kèm chính thức (.pdf)
+                        </div>
+                    </div>
+                    <a href="@Model.FileDinhKem" target="_blank"
+                       style="padding:8px 16px; border-radius:8px; border:1px solid #1a3f8f;
+                              color:#1a3f8f; font-size:13px; font-weight:700;
+                              text-decoration:none; display:inline-flex; align-items:center; gap:6px;">
+                        <i data-lucide="download" style="width:14px;height:14px;"></i> Tải về
+                    </a>
+                </div>
+            }
+
+        </div>
+
+        @* Footer *@
+        <div class="nb-footer">
+            <div class="nb-footer-brand">
+                <div class="nb-footer-brand-dot"></div>
+                KTX Thông Minh – ĐH Vinh
+            </div>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <a asp-action="Index" class="nb-btn btn-back">
+                    <i data-lucide="chevron-left"></i> Quay lại
+                </a>
+                <button class="nb-btn btn-print" onclick="window.print()">
+                    <i data-lucide="printer"></i> In bản sao
+                </button>
+                @if (Model.LoaiThongBao == "Tài chính")
+                {
+                    <a asp-action="HoaDon" asp-controller="GiaoDich" class="nb-btn btn-primary-tb">
+                        <i data-lucide="credit-card"></i> Thanh toán ngay
+                    </a>
+                }
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            if (typeof lucide !== 'undefined') { lucide.createIcons(); }
+        });
+    </script>
+}

@@ -1,0 +1,152 @@
+﻿@model QuanlyKTX.Models.SinhVien
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Hồ sơ cá nhân";
+}
+
+<div class="container-fluid p-0">
+    @* Quan trọng: enctype="multipart/form-data" để gửi được file *@
+    <form action="/SinhVien/LuuHoSo" method="POST" enctype="multipart/form-data">
+        @* Các trường ẩn để giữ dữ liệu và định danh *@
+        <input type="hidden" name="Mssv" value="@Model.Mssv" />
+        <input type="hidden" name="FaceIdData" value="@Model.FaceIdData" />
+
+        <div class="profile-header-card dashboard-fade-in">
+            @* Hiển thị Ảnh bìa *@
+            <div class="profile-cover" id="coverDisplay"
+                 style="background-image: url('@(string.IsNullOrEmpty(Model.FaceIdData) ? "/images/default-cover.jpg" : Model.FaceIdData)'); position: relative; background-size: cover; background-position: center;">
+                <label for="coverInput" style="position: absolute; right: 20px; bottom: 20px; background: rgba(0,0,0,0.5); color: white; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-size: 13px;">
+                    <i data-lucide="image" style="width: 16px; vertical-align: middle;"></i> Đổi ảnh bìa
+                </label>
+                <input type="file" id="coverInput" name="CoverFile" hidden accept="image/*" onchange="previewImage(this, 'coverDisplay')">
+            </div>
+
+            <div class="profile-avatar-wrapper">
+                @* Hiển thị Ảnh đại diện - Ưu tiên lấy từ FaceIdData *@
+                <img id="avatarDisplay"
+                     src="@(string.IsNullOrEmpty(Model.FaceIdData) ? "https://ui-avatars.com/api/?name=" + Model.HoTen + "&background=1e3c72&color=fff&size=200&bold=true" : Model.FaceIdData)"
+                     alt="Avatar">
+                <label for="avatarInput" class="edit-avatar-btn" title="Cập nhật ảnh đại diện" style="cursor: pointer;">
+                    <i data-lucide="camera" style="width: 18px; height: 18px;"></i>
+                </label>
+                <input type="file" id="avatarInput" name="AvatarFile" hidden accept="image/*" onchange="previewImage(this, 'avatarDisplay')">
+            </div>
+
+            <div class="profile-name-section">
+                <h2>@Model.HoTen</h2>
+                <p>@Model.Khoa <span class="status-badge">@Model.TrangThai</span></p>
+            </div>
+        </div>
+
+        <div class="profile-layout dashboard-fade-in delay-1">
+            <div class="profile-sidebar">
+                <div class="info-card">
+                    <div class="info-card-header">
+                        <div class="header-icon-box"><i data-lucide="shield"></i></div>
+                        <h3>Bảo mật & Định danh</h3>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Mã Sinh Viên (MSSV)</label>
+                        <input type="text" class="form-input" value="@Model.Mssv" readonly style="background-color: #f8fafc;">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Căn cước công dân (CCCD)</label>
+                        <input type="text" class="form-input" name="Cccd" value="@Model.Cccd" readonly style="background-color: #f8fafc;">
+                    </div>
+
+                    <button type="submit" class="btn-primary-custom" style="width: 100%; margin-top: 10px;">
+                        <i data-lucide="save"></i> Lưu thay đổi
+                    </button>
+                </div>
+            </div>
+
+            <div class="profile-main-content">
+                @* Thông tin cá nhân *@
+                <div class="info-card">
+                    <div class="info-card-header">
+                        <div class="header-icon-box" style="background: #fef2f2; color: #ef4444;"><i data-lucide="user"></i></div>
+                        <h3>Thông tin cơ bản</h3>
+                    </div>
+                    <div class="form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div class="form-group">
+                            <label class="form-label">Họ và Tên</label>
+                            <input type="text" class="form-input" name="HoTen" value="@Model.HoTen" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Ngày sinh</label>
+                            <input type="date" class="form-input" name="NgaySinh" value="@Model.NgaySinh?.ToString("yyyy-MM-dd")">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Giới tính</label>
+                            <select class="form-input" name="GioiTinh">
+                                <option value="Nam" selected="@(Model.GioiTinh == "Nam")">Nam</option>
+                                <option value="Nữ" selected="@(Model.GioiTinh == "Nữ")">Nữ</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Lớp sinh hoạt</label>
+                            <input type="text" class="form-input" name="Lop" value="@Model.Lop">
+                        </div>
+                    </div>
+                </div>
+
+                @* Liên hệ *@
+                <div class="info-card" style="margin-top: 20px;">
+                    <h3 style="margin-bottom: 20px; font-size: 18px; display: flex; align-items: center; gap: 10px;">
+                        <i data-lucide="mail" style="color: #eab308;"></i> Liên hệ & Quê quán
+                    </h3>
+                    <div class="form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div class="form-group">
+                            <label class="form-label">Số điện thoại</label>
+                            <input type="text" class="form-input" name="Sdt" value="@Model.Sdt">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-input" name="Email" value="@Model.Email">
+                        </div>
+                        <div class="form-group" style="grid-column: span 2;">
+                            <label class="form-label">Quê quán</label>
+                            <input type="text" class="form-input" name="QueQuan" value="@Model.QueQuan">
+                        </div>
+                    </div>
+                </div>
+
+                @* Người thân *@
+                <div class="info-card" style="margin-top: 20px;">
+                    <h3 style="margin-bottom: 20px; font-size: 18px; display: flex; align-items: center; gap: 10px;">
+                        <i data-lucide="users" style="color: #4f46e5;"></i> Thông tin người thân
+                    </h3>
+                    <div class="form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div class="form-group">
+                            <label class="form-label">Họ tên người thân</label>
+                            <input type="text" class="form-input" name="HoTenNguoiThan" value="@Model.HoTenNguoiThan">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">SĐT người thân</label>
+                            <input type="text" class="form-input" name="SdtnguoiThan" value="@Model.SdtnguoiThan">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    // Hàm xem trước ảnh khi chọn file từ máy tính
+    function previewImage(input, displayId) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                if (displayId === 'coverDisplay') {
+                    document.getElementById(displayId).style.backgroundImage = "url('" + e.target.result + "')";
+                } else {
+                    document.getElementById(displayId).src = e.target.result;
+                }
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+</script>

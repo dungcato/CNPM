@@ -1,0 +1,98 @@
+﻿@model IEnumerable<QuanlyKTX.Models.PhanAnh>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Theo dõi Phản Ánh";
+}
+
+<div class="container-fluid p-0">
+    <section class="page-header dashboard-fade-in" style="...">
+        <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #2196f3 0%, #0d47a1 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white;">
+            <i data-lucide="eye" style="width: 32px; height: 32px;"></i>
+        </div>
+        <div>
+            <h1 style="...">Theo dõi Phản Ánh</h1>
+            <p style="color: #64748b; margin: 0;">Kiểm tra trạng thái các yêu cầu đã gửi của bạn.</p>
+        </div>
+    </section>
+
+    <section class="stats-filter-grid dashboard-fade-in delay-1">
+        <div class="stat-filter-card all active" data-filter="all">
+            <div class="stat-filter-icon"><i data-lucide="list"></i></div>
+            <div class="stat-filter-label">Tất cả</div>
+            <div class="stat-filter-value">@ViewBag.Total</div>
+        </div>
+        <div class="stat-filter-card pending" data-filter="pending">
+            <div class="stat-filter-icon"><i data-lucide="loader-2"></i></div>
+            <div class="stat-filter-label">Chờ tiếp nhận</div>
+            <div class="stat-filter-value">@ViewBag.Pending</div>
+        </div>
+        <div class="stat-filter-card processing" data-filter="processing">
+            <div class="stat-filter-icon"><i data-lucide="wrench"></i></div>
+            <div class="stat-filter-label">Đang xử lý</div>
+            <div class="stat-filter-value">@ViewBag.Processing</div>
+        </div>
+        <div class="stat-filter-card completed" data-filter="completed">
+            <div class="stat-filter-icon"><i data-lucide="check-check"></i></div>
+            <div class="stat-filter-label">Đã hoàn thành</div>
+            <div class="stat-filter-value">@ViewBag.Completed</div>
+        </div>
+    </section>
+
+    <section class="history-container-pa dashboard-fade-in delay-2">
+        <div class="history-header-pa">
+            <h3><i data-lucide="history" style="color: #4f46e5;"></i> Lịch sử Phản ánh</h3>
+        </div>
+
+        @if (!Model.Any())
+        {
+            <div style="text-align: center; padding: 50px; color: #94a3b8;">
+                <i data-lucide="inbox" style="width: 48px; height: 48px; margin-bottom: 10px;"></i>
+                <p>Bạn chưa gửi phản ánh nào.</p>
+            </div>
+        }
+        else
+        {
+            @foreach (var item in Model)
+            {
+                // Logic xử lý class cho Filter JavaScript
+                string filterClass = "pending";
+                string iconName = "loader-2";
+                if (item.TrangThai == "Đang xử lý") { filterClass = "processing"; iconName = "wrench"; }
+                else if (item.TrangThai == "Đã hoàn thành") { filterClass = "completed"; iconName = "check-check"; }
+
+                <div class="history-item-pa @filterClass item-record">
+                    <div class="history-item-main-pa">
+                        <div class="history-icon-pa"><i data-lucide="@iconName"></i></div>
+                        <div class="history-info-pa">
+                            <div class="history-title-pa">@item.TieuDe</div>
+                            <div class="history-meta-pa">
+                                Gửi lúc: @item.NgayGui?.ToString("HH:mm - dd/MM/yyyy") | <strong>Loại: @item.LoaiSuCo</strong>
+                            </div>
+                        </div>
+                        <div class="history-status-pa @filterClass">@item.TrangThai</div>
+                    </div>
+
+                    <div class="history-stepper-pa">
+                        @{
+                            bool s1 = true; // Luôn là Đã gửi
+                            bool s2 = (item.TrangThai != "Chờ tiếp nhận");
+                            bool s3 = (item.TrangThai == "Đang xử lý" || item.TrangThai == "Đã hoàn thành");
+                            bool s4 = (item.TrangThai == "Đã hoàn thành");
+                        }
+                        <div class="step-pa @(s1 ? "active" : "")"><div class="step-icon-pa"><i data-lucide="send"></i></div><div class="step-label-pa">Đã gửi</div></div>
+                        <div class="step-pa @(s2 ? "active" : "")"><div class="step-icon-pa"><i data-lucide="inbox"></i></div><div class="step-label-pa">Tiếp nhận</div></div>
+                        <div class="step-pa @(s3 ? "active" : "")"><div class="step-icon-pa"><i data-lucide="wrench"></i></div><div class="step-label-pa">Đang xử lý</div></div>
+                        <div class="step-pa @(s4 ? "active" : "")"><div class="step-icon-pa"><i data-lucide="check"></i></div><div class="step-label-pa">Hoàn thành</div></div>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(item.KetQuaXuLy))
+                    {
+                        <div style="margin-top: 15px; padding: 10px; background: #f0fdf4; border-radius: 8px; font-size: 13px; color: #166534; border-left: 4px solid #22c55e;">
+                            <strong>BQL phản hồi:</strong> @item.KetQuaXuLy
+                        </div>
+                    }
+                </div>
+            }
+        }
+    </section>
+</div>

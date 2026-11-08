@@ -1,0 +1,106 @@
+﻿@model IEnumerable<QuanlyKTX.Models.ThongBao>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Thông báo";
+}
+
+<div class="container-fluid p-0">
+    <section class="page-header-tb dashboard-fade-in">
+        <div class="page-header-icon-tb"><i data-lucide="bell"></i></div>
+        <div class="page-header-content-tb">
+            <h1>Thông Báo Của Bạn</h1>
+            <p>Tất cả cập nhật quan trọng từ Ban Quản lý KTX.</p>
+        </div>
+    </section>
+
+    <section class="stats-filter-grid dashboard-fade-in delay-1">
+        <div class="stat-filter-card all active">
+            <div class="stat-filter-icon"><i data-lucide="list"></i></div>
+            <div class="stat-filter-label">Tất cả</div>
+            <div class="stat-filter-value">@ViewBag.Total</div>
+        </div>
+        <div class="stat-filter-card unread">
+            <div class="stat-filter-icon"><i data-lucide="bell-dot"></i></div>
+            <div class="stat-filter-label">Chưa đọc</div>
+            <div class="stat-filter-value">@ViewBag.UnreadCount</div>
+        </div>
+        <div class="stat-filter-card finance">
+            <div class="stat-filter-icon"><i data-lucide="receipt"></i></div>
+            <div class="stat-filter-label">Tài chính</div>
+            <div class="stat-filter-value">@ViewBag.FinanceCount</div>
+        </div>
+        <div class="stat-filter-card event">
+            <div class="stat-filter-icon"><i data-lucide="megaphone"></i></div>
+            <div class="stat-filter-label">Sự kiện & Bảo trì</div>
+            <div class="stat-filter-value">@ViewBag.EventCount</div>
+        </div>
+    </section>
+
+    <section class="notification-container dashboard-fade-in delay-2">
+        <div class="notification-header">
+            <h3><i data-lucide="inbox" style="width: 20px; color: #4f46e5;"></i> Hộp thư Thông báo</h3>
+        </div>
+
+        @if (!Model.Any())
+        {
+            <div style="padding: 40px; text-align: center; color: #94a3b8;">
+                <i data-lucide="mail-open" style="width: 48px; height: 48px; margin-bottom: 10px;"></i>
+                <p>Bạn không có thông báo nào mới.</p>
+            </div>
+        }
+        else
+        {
+            @foreach (var item in Model)
+            {
+                string categoryClass = "";
+                string iconName = "bell";
+
+                if (item.LoaiThongBao == "Tài chính") { categoryClass = "finance"; iconName = "receipt"; }
+                else if (item.LoaiThongBao == "Bảo trì") { categoryClass = "maintenance"; iconName = "wrench"; }
+                else { categoryClass = "event"; iconName = "megaphone"; }
+
+                string unreadClass = (item.NgayGui >= DateTime.Now.AddDays(-1)) ? "unread" : "";
+
+                @* Bọc toàn bộ notification-item vào thẻ a để nhấn vào đâu cũng xem được chi tiết *@
+                <a asp-action="ChiTiet" asp-controller="ThongBao" asp-route-id="@item.ThongBaoId" style="text-decoration: none; color: inherit; display: block; margin-bottom: 15px;">
+                    <div class="notification-item @categoryClass @unreadClass" style="transition: transform 0.2s, box-shadow 0.2s; cursor: pointer;">
+                        <div class="notification-icon"><i data-lucide="@iconName"></i></div>
+                        <div class="notification-info">
+                            <div class="notification-title" style="font-weight: 700; color: #1e293b;">@item.TieuDe</div>
+                            <div class="notification-description" style="font-size: 14px; color: #64748b; margin: 5px 0; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical;">
+                                @item.NoiDung
+                            </div>
+                            <div class="notification-meta" style="font-size: 12px;">
+                                <strong>@item.LoaiThongBao</strong> | Lúc: @item.NgayGui?.ToString("HH:mm - dd/MM/yyyy")
+                            </div>
+                        </div>
+                        <div class="unread-dot-wrapper">
+                            @if (unreadClass == "unread")
+                            {
+                                <div class="unread-dot"></div>
+                            }
+                            <i data-lucide="chevron-right" style="width: 18px; color: #cbd5e1; margin-left: 10px;"></i>
+                        </div>
+                    </div>
+                </a>
+            }
+        }
+    </section>
+</div>
+
+<style>
+    /* Hiệu ứng khi di chuột vào mục thông báo */
+    .notification-item:hover {
+        background-color: #f8fafc;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+</style>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            if (typeof lucide !== 'undefined') { lucide.createIcons(); }
+        });
+    </script>
+}

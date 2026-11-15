@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace QuanlyKTX.Controllers
 {
-    [AllowAnonymous]
     public class AccountController : Controller
     {
         private readonly KtxthongminhContext _context;
@@ -35,7 +34,7 @@ namespace QuanlyKTX.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
+        //[ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(string username, string password)
         {
             string ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";

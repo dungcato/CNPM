@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using QuanlyKTX.Models;
-using QuanlyKTX.Hubs; // Bắt buộc phải có cho Camera AI
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,11 +8,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<KtxthongminhContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// 2. Cấu hình Cookie ĐĂNG NHẬP THẬT (Gắt hơn)
+// 2. Cấu hình Cookie gắt hơn
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
-        // Chỉnh đường dẫn về đúng Controller đăng nhập của ông
         options.LoginPath = "/Account/Login";
         options.LogoutPath = "/Account/Logout";
         options.AccessDeniedPath = "/Account/AccessDenied";
@@ -33,8 +31,6 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("SinhVienOnly", policy => policy.RequireRole("SinhVien"));
 });
 
-// 4. KÍCH HOẠT SIGNALR (Cho luồng Camera Realtime)
-builder.Services.AddSignalR();
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
@@ -49,19 +45,15 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 
-// 5. THỨ TỰ NÀY LÀ BẮT BUỘC KHÔNG ĐƯỢC SAI
+// Thứ tự này không được sai
 app.UseAuthentication();
 app.UseAuthorization();
 
-// 6. GIỮ LẠI ĐƯỜNG DẪN CỦA CAMERA AI
-app.MapHub<CameraHub>("/cameraHub");
-
-// 7. Cấu hình điều hướng
+// 4. Cấu hình điều hướng
 app.MapControllerRoute(
     name: "areas",
     pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
 
-// Chạy thẳng vào trang Đăng nhập làm mặc định
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Account}/{action=Login}/{id?}");

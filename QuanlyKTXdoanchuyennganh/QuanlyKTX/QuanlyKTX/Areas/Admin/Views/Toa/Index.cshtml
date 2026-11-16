@@ -326,7 +326,7 @@
         <h2 style="font-size: 1.5rem; font-weight: 800; color: #1e293b; margin: 0; margin-bottom: 5px;">Quản Lý Tòa nhà</h2>
     </div>
     <!-- LINK SANG TRANG CREATE MỚI -->
-    <a href="/Admin/Phong/Create" style="background: #10b981; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2);">
+    <a href="/Admin/Toa/Create" style="background: #10b981; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2);">
         <i data-lucide="plus-circle" style="width: 18px;"></i> Thêm tòa mới
     </a>
 </div>
@@ -353,6 +353,7 @@
         <table class="user-table">
             <thead>
                 <tr>
+                    <th>Mã tòa</th>
                     <th>Tên tòa</th>
                     <th>Số tầng</th>
                     <th>Loại khu</th>
@@ -364,6 +365,7 @@
                 @foreach (var item in Model)
                 {
                     <tr>
+                        <td>@item.ToaNhaId</td>
                         <td>@item.TenToa</td>
                         <td>@item.SoTang</td>
                         <td>@item.LoaiKhu</td>

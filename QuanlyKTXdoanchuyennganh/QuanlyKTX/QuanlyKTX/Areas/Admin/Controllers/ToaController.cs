@@ -37,5 +37,28 @@ namespace QuanlyKTX.Areas.Admin.Controllers
             _context.SaveChanges();
             return RedirectToAction("Index");
         }
+
+        [HttpPost]
+        public IActionResult Edit(string id)
+        {
+            return View(_context.ToaNhas.Find(id));
+        }
+
+        [HttpPost]
+        public IActionResult EditToaNha(ToaNha toaNha)
+        {
+            _context.Update(toaNha);
+            _context.SaveChanges();
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        public IActionResult Delete(string id)
+        {
+            ToaNha toaNha = _context.ToaNhas.Find(id);
+            _context.Remove(toaNha);
+            _context.SaveChanges();
+            return RedirectToAction("Index");
+        }
     }
 }

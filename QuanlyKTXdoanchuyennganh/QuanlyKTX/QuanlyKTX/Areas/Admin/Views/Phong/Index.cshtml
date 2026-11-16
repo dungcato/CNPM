@@ -418,7 +418,13 @@
 
                         <td style="padding-right: 25px;">
                             <div style="display: flex; gap: 8px;">
-                                <button style="background: #10b981; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: 600;"><i data-lucide="check" style="width: 14px;"></i> Duyệt</button>
+                                <form action="/Admin/HopDong/CreateFromRequest" method="post">
+                                    <input name="mssv" value="@phanAnh.Mssv" hidden=""/>
+                                    <input name="startDate" value="@content[1].Split(' ')[0]" hidden=""/>
+                                    <input name="duration" value="@content[2]" hidden=""/>
+                                    <button style="background: #10b981; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: 600;"><i data-lucide="check" style="width: 14px;"></i> Duyệt</button>
+                                </form>
+
                                 <button style="background: #f1f5f9; color: #dc2626; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: 600;" onclick="openRejectModal(@phanAnh.PhanAnhId)">Từ chối</button>
                             </div>
                         </td>

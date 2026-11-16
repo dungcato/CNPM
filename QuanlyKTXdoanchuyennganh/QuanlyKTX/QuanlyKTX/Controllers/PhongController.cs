@@ -91,6 +91,8 @@ namespace QuanlyKTX.Controllers
         [HttpGet]
         public IActionResult DangKyThue()
         {
+            string mssv = User.FindFirstValue(ClaimTypes.Name);
+            ViewBag.sinhVien = _context.SinhViens.Find(mssv);
             ViewBag.loaiPhongList = _context.LoaiPhongs.ToList();
             return View();
         }

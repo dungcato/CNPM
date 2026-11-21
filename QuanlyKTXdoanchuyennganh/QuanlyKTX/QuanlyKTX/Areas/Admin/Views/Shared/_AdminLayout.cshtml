@@ -96,7 +96,7 @@
                 <ul class="nav-item">
                     <li><a href="/Admin/SinhVien/Index" class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "SinhVien" ? "active" : "")"><i data-lucide="users"></i> Quản lý Sinh viên</a></li>
                     <li><a href="/Admin/HopDong/Index" class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "HopDong" ? "active" : "")"><i data-lucide="file-text"></i> Quản lý Hợp đồng</a></li>
-                    <li><a href="/Admin/HoaDon/Index" class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "HoaDon" ? "active" : "")"><i data-lucide="dollar-sign"></i> Quản lý Hóa đơn</a></li>
+                    @* <li><a href="/Admin/HoaDon/Index" class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "HoaDon" ? "active" : "")"><i data-lucide="dollar-sign"></i> Quản lý Hóa đơn</a></li> *@
                     <li><a href="/Admin/CoSoVatChat/Index" class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "CoSoVatChat" ? "active" : "")"><i data-lucide="database"></i> Quản lý Cơ sở vật chất</a></li>
                     <li><a href="/Admin/Toa/Index" class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Toa" ? "active" : "")"><i data-lucide="layout"></i> Quản lý Tòa</a></li>
                     <li><a href="/Admin/Phong/Index" class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Phong" ? "active" : "")"><i data-lucide="layout"></i> Quản lý Phòng</a></li>

@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QuanlyKTX.Models;
 using System;
@@ -9,7 +8,6 @@ using System.Threading.Tasks;
 namespace QuanlyKTX.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize] 
     public class CanhBaoController : Controller
     {
         private readonly KtxthongminhContext _context;
@@ -33,15 +31,15 @@ namespace QuanlyKTX.Areas.Admin.Controllers
             {
                 var data = await _context.NhatKyAnNinhs
                     .OrderByDescending(x => x.ThoiGian)
-                    .Take(20)
+                    .Take(20) // Hiển thị 20 vụ gần nhất
                     .Select(x => new {
-                        id = x.LogId, 
+                        id = x.LogId, // Chuẩn theo model NhatKyAnNinh.cs
                         thoiGian = x.ThoiGian.HasValue ? x.ThoiGian.Value.ToString("dd/MM/yyyy") : "",
                         gio = x.ThoiGian.HasValue ? x.ThoiGian.Value.ToString("HH:mm:ss") : "",
                         noiDung = x.GhiChuXuLy ?? x.LoaiSuKien ?? "Cảnh báo an ninh",
                         hinhAnh = x.HinhAnhSnapshot ?? "/images/no-image.png",
                         mucDo = x.MucDoCanhBao ?? "Nguy hiểm",
-                        trangThai = x.TrangThaiXuLy ?? false 
+                        trangThai = x.TrangThaiXuLy ?? false // Đã xử lý hay chưa
                     }).ToListAsync();
 
                 return Json(data);

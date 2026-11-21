@@ -12,8 +12,8 @@
 
     @if (TempData["ThongBao"] != null)
     {
-        <div style="padding: 15px; margin-bottom: 20px; background: #dcfce7; color: #16a34a; border-radius: 8px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
-            <i data-lucide="check-circle" style="width: 20px;"></i> @TempData["ThongBao"]
+        <div class="alert @(TempData["ThongBao"].ToString().Contains("Lỗi") ? "alert-danger" : "alert-success") dashboard-fade-in">
+            @TempData["ThongBao"]
         </div>
     }
 
@@ -32,29 +32,22 @@
             <div class="form-grid">
                 <div class="form-group">
                     <label>Họ và tên <span class="required">*</span></label>
-                    <input type="text" class="form-input" name="HoTen" value="@ViewBag.sinhVien.HoTen" readonly style="background: #f1f5f9;"/>
+                    <input type="text" class="form-input" name="HoTen" value="Lê Anh Dũng" required />
                 </div>
                 <div class="form-group">
                     <label>Mã số sinh viên <span class="required">*</span></label>
-                    <input type="text" class="form-input" name="MSSV" value="@ViewBag.sinhVien.Mssv" readonly style="background: #f1f5f9;" />
+                    @* name="MSSV" phải viết hoa y hệt tham số trong Controller *@
+                    <input type="text" class="form-input" name="MSSV" value="23574801" readonly style="background: #f1f5f9;" />
                 </div>
                 <div class="form-group">
                     <label>Ngày sinh <span class="required">*</span></label>
-                    <input type="text" class="form-input" name="NgaySinh" value="@ViewBag.sinhVien.NgaySinh" readonly style="background: #f1f5f9;"/>
+                    <input type="date" class="form-input" name="NgaySinh" value="2004-08-15" required />
                 </div>
                 <div class="form-group">
                     <label>Giới tính <span class="required">*</span></label>
-                    <select class="form-input" name="GioiTinh" readonly style="background: #f1f5f9;">
-                        @{
-                            if (@ViewBag.sinhVien.GioiTinh == "Nam") {
-                                <option value="Nam" selected>Nam</option>
-                                <option value="Nữ">Nữ</option>
-                            }
-                            else {
-                                <option value="Nam">Nam</option>
-                                <option value="Nữ" selected>Nữ</option>
-                            }
-                        }
+                    <select class="form-input" name="GioiTinh" required>
+                        <option value="Nam" selected>Nam</option>
+                        <option value="Nữ">Nữ</option>
                     </select>
                 </div>
             </div>
@@ -67,9 +60,11 @@
                     <label>Loại phòng <span class="required">*</span></label>
                     @* value="1", "2"... này sẽ map vào LoaiPhongId trong Controller *@
                     <select class="form-input" name="LoaiPhongId" required>
-                        @foreach (LoaiPhong loaiPhong in ViewBag.loaiPhongList) {
-                            <option value="@loaiPhong.LoaiPhongId">@loaiPhong.TenLoai - @loaiPhong.GiaChuan</option>
-                        }
+                        <option value="">-- Chọn loại phòng --</option>
+                        <option value="1">Phòng 2 người - 1,200,000đ/tháng</option>
+                        <option value="2" selected>Phòng 4 người - 800,000đ/tháng</option>
+                        <option value="3">Phòng 6 người - 600,000đ/tháng</option>
+                        <option value="4">Phòng 8 người - 500,000đ/tháng</option>
                     </select>
                 </div>
 

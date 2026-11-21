@@ -1,6 +1,6 @@
-﻿﻿@{
-Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
-ViewData["Title"] = "AI Security Dashboard";
+﻿@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "AI Security Dashboard";
 }
 
 <style>
@@ -273,7 +273,7 @@ ViewData["Title"] = "AI Security Dashboard";
 
         <div class="cam-viewer" id="camContainer">
             <div class="scanner-line" id="scannerLine"></div>
-            <img id="liveFeed" src="http://127.0.0.1:5000/video_feed" onerror="handleImageError(this)" decoding="async" loading="eager" fetchpriority="high" />
+            <img id="liveFeed" src="/api/Ai/camera-stream" onerror="handleImageError(this)" decoding="async" loading="eager" fetchpriority="high" />
         </div>
     </div>
 
@@ -359,7 +359,7 @@ ViewData["Title"] = "AI Security Dashboard";
                 });
 
             setTimeout(() => {
-                if (document.getElementById('btnTrigger').disabled) {
+                if(document.getElementById('btnTrigger').disabled) {
                     resetUIState();
                 }
             }, 8000);
@@ -369,7 +369,7 @@ ViewData["Title"] = "AI Security Dashboard";
             const btn = document.getElementById('btnTrigger');
             btn.disabled = false;
             // Trả lại đúng tên nút mới khi quét xong
-            btn.innerHTML = `<i data-lucide="scan-face"></i> Kích Hoạt Quét AI `;
+            btn.innerHTML = `<i data-lucide="scan-face"></i> Kích Hoạt Quét AI (6s)`;
             document.getElementById('scannerLine').style.display = 'none';
             lucide.createIcons();
         }
@@ -378,15 +378,15 @@ ViewData["Title"] = "AI Security Dashboard";
             Swal.fire({
                 title: 'CHI TIẾT XÂM NHẬP',
                 html: `
-                            <div style="text-align: left; font-size: 0.95rem; color: #334155;">
-                                <p style="margin-bottom: 8px;"><strong style="color: #0f172a;">Thời gian:</strong> <span style="background: #e2e8f0; padding: 2px 6px; border-radius: 4px;">${time}</span></p>
-                                <p style="margin-bottom: 8px;"><strong style="color: #0f172a;">Mức độ:</strong> <span style="color: #ef4444; font-weight: bold;">Nguy Hiểm 🔴</span></p>
-                                <p style="margin-bottom: 15px;"><strong style="color: #0f172a;">Ghi chú:</strong> ${content}</p>
-                                <hr style="border-color: #cbd5e1;">
-                                <p style="text-align: center; margin: 10px 0; font-weight: bold; color: #b91c1c;">📸 ẢNH VẬT CHỨNG TỪ CAMERA</p>
-                                <img src="${imgUrl}" style="width: 100%; border-radius: 10px; border: 3px solid #fecaca; box-shadow: 0 4px 10px rgba(0,0,0,0.1);" onerror="this.src='https://placehold.co/640x480?text=NO+IMAGE'" />
-                            </div>
-                        `,
+                    <div style="text-align: left; font-size: 0.95rem; color: #334155;">
+                        <p style="margin-bottom: 8px;"><strong style="color: #0f172a;">Thời gian:</strong> <span style="background: #e2e8f0; padding: 2px 6px; border-radius: 4px;">${time}</span></p>
+                        <p style="margin-bottom: 8px;"><strong style="color: #0f172a;">Mức độ:</strong> <span style="color: #ef4444; font-weight: bold;">Nguy Hiểm 🔴</span></p>
+                        <p style="margin-bottom: 15px;"><strong style="color: #0f172a;">Ghi chú:</strong> ${content}</p>
+                        <hr style="border-color: #cbd5e1;">
+                        <p style="text-align: center; margin: 10px 0; font-weight: bold; color: #b91c1c;">📸 ẢNH VẬT CHỨNG TỪ CAMERA</p>
+                        <img src="${imgUrl}" style="width: 100%; border-radius: 10px; border: 3px solid #fecaca; box-shadow: 0 4px 10px rgba(0,0,0,0.1);" onerror="this.src='https://placehold.co/640x480?text=NO+IMAGE'" />
+                    </div>
+                `,
                 width: 600,
                 confirmButtonText: 'Đóng',
                 confirmButtonColor: '#3b82f6',
@@ -420,7 +420,7 @@ ViewData["Title"] = "AI Security Dashboard";
             // Hiển thị câu thông báo nếu ngày đó không có ai vi phạm
             let noDataMsg = document.getElementById('noDataMsg');
             if (!hasVisible && cards.length > 0) {
-                if (!noDataMsg) {
+                if(!noDataMsg) {
                     document.getElementById('strangerLogs').insertAdjacentHTML('beforeend', `<div id="noDataMsg" style="text-align:center; color:#94a3b8; margin-top:50px;">Không có cảnh báo an ninh nào trong ngày này.</div>`);
                 } else {
                     noDataMsg.style.display = 'block';
@@ -441,21 +441,21 @@ ViewData["Title"] = "AI Security Dashboard";
                         data.forEach(item => {
                             let safeImg = item.hinhAnh ? item.hinhAnh : "https://placehold.co/70x70?text=NO+IMG";
                             html += `
-                                        <div class="log-card" onclick="viewStrangerDetail('${safeImg}', '${item.thoiGian}', '${item.noiDung}')" title="Click để xem chi tiết">
-                                            <img src="${safeImg}" onerror="this.src='https://placehold.co/70x70?text=NO+IMG'" />
-                                            <div class="log-card-info">
-                                                <h4>CẢNH BÁO AN NINH</h4>
-                                                <p class="time-text"><i data-lucide="clock" style="width:12px;"></i> ${item.thoiGian}</p>
-                                                <p class="desc">${item.noiDung}</p>
-                                            </div>
-                                            <span class="badge-danger">Mới</span>
-                                        </div>
-                                    `;
+                                <div class="log-card" onclick="viewStrangerDetail('${safeImg}', '${item.thoiGian}', '${item.noiDung}')" title="Click để xem chi tiết">
+                                    <img src="${safeImg}" onerror="this.src='https://placehold.co/70x70?text=NO+IMG'" />
+                                    <div class="log-card-info">
+                                        <h4>CẢNH BÁO AN NINH</h4>
+                                        <p class="time-text"><i data-lucide="clock" style="width:12px;"></i> ${item.thoiGian}</p>
+                                        <p class="desc">${item.noiDung}</p>
+                                    </div>
+                                    <span class="badge-danger">Mới</span>
+                                </div>
+                            `;
                         });
                     }
                     document.getElementById('strangerLogs').innerHTML = html;
                     lucide.createIcons();
-                    filterHistory();
+                    filterHistory(); 
                 });
         }
 

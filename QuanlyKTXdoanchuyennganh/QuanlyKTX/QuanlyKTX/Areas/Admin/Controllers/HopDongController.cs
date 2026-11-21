@@ -214,36 +214,5 @@ namespace QuanlyKTX.Areas.Admin.Controllers
             }
             return RedirectToAction(nameof(Index));
         }
-
-        [HttpPost]
-        public IActionResult CreateFromRequest(string mssv, DateOnly startDate, int duration)
-        {
-            ViewBag.SinhVienList = new SelectList(_context.SinhViens.ToList(), "Mssv", "HoTen");
-
-            // LOGIC THÔNG MINH: LỌC PHÒNG TRỐNG & ĐẾM NGƯỜI
-            var dsPhong = _context.Phongs
-                .Select(p => new {
-                    PhongId = p.PhongId,
-                    // Đếm xem phòng này đang có bao nhiêu SV "Đang lưu trú"
-                    SoNguoiDangO = _context.SinhViens.Count(s => s.PhongDangOid == p.PhongId && s.TrangThai == "Đang lưu trú")
-                })
-                .Where(p => p.SoNguoiDangO < 4) // CHỈ LẤY NHỮNG PHÒNG DƯỚI 4 NGƯỜI
-                .ToList();
-
-            // Biến tấu danh sách đổ ra giao diện cho đẹp
-            var phongList = dsPhong.Select(p => new SelectListItem
-            {
-                Value = p.PhongId,
-                // Hiển thị cụ thể: "Phòng A101 (2/4 người)"
-                Text = $"Phòng {p.PhongId} ({p.SoNguoiDangO}/4 người đang ở)"
-            }).ToList();
-
-            ViewBag.PhongList = phongList;
-            ViewBag.AutoMaHD = "HD-" + System.DateTime.Now.ToString("yyMMdd-HHmmss");
-
-            ViewBag.mssv = mssv;
-
-            return View();
-        }
     }
 }

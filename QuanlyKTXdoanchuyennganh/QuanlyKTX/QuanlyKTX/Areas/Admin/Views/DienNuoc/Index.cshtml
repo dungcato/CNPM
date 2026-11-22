@@ -67,6 +67,7 @@
         border-radius: 8px;
         border: 1px solid #cbd5e1;
         font-family: inherit;
+        box-sizing: border-box;
     }
 
         .form-group-admin input:focus, .form-group-admin select:focus {
@@ -86,6 +87,7 @@
         display: flex;
         align-items: center;
         gap: 8px;
+        height: 42px;
     }
 
     /* CSS CHO BẢNG DỮ LIỆU */
@@ -201,8 +203,8 @@
         <h2 style="font-size: 1.5rem; font-weight: 800; color: #1e293b; margin: 0 0 5px 0;">Quản lý Điện nước</h2>
         <p style="color: #64748b; font-size: 0.95rem; margin: 0;">Ghi nhận chỉ số, kiểm tra lỗi và phát hành hóa đơn đồng loạt.</p>
     </div>
-    <a href="/Admin/DienNuoc/Create" style="background: #e0e7ff; color: #4f46e5; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 8px; transition: 0.2s;">
-        <i data-lucide="plus-circle" style="width: 18px;"></i> Nhập thủ công
+    <a href="/Admin/DienNuoc/Create" style="background: #4f46e5; color: white; padding: 11px 22px; border-radius: 8px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.25); transition: 0.2s;">
+        <i data-lucide="plus-circle" style="width: 18px;"></i> Nhập chỉ số thủ công
     </a>
 </div>
 
@@ -274,6 +276,7 @@
 
         <!-- NÚT PHÁT HÀNH HÓA ĐƠN HÀNG LOẠT -->
         <form action="/Admin/DienNuoc/TaoHoaDonHangLoat" method="post" onsubmit="return confirm('Bạn có chắc chắn muốn tính tiền và phát hành Hóa Đơn cho TẤT CẢ các phòng chưa có hóa đơn trong kỳ này không?');">
+            @Html.AntiForgeryToken()
             <input type="hidden" name="thang" value="@ViewBag.SearchThang" />
             <input type="hidden" name="nam" value="@ViewBag.SearchNam" />
             <button type="submit" style="background: #10b981; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2);">
@@ -301,8 +304,8 @@
 
                     foreach (var item in Model)
                     {
-                        int tieuThuDien = (item.DienMoi ?? 0) - (item.DienCu ?? 0);
-                        int tieuThuNuoc = (item.NuocMoi ?? 0) - (item.NuocCu ?? 0);
+                        int tieuThuDien = Math.Max(0, (item.DienMoi ?? 0) - (item.DienCu ?? 0));
+                        int tieuThuNuoc = Math.Max(0, (item.NuocMoi ?? 0) - (item.NuocCu ?? 0));
                         bool daTaoHoaDon = danhSachDaTao.Contains(item.PhongId);
 
                         <tr>
@@ -347,7 +350,8 @@
                                     <a href="/Admin/DienNuoc/Edit/@item.DienNuocId" class="btn-action view" title="Sửa lại chỉ số"><i data-lucide="edit-3" style="width: 16px;"></i></a>
 
                                     <form action="/Admin/DienNuoc/Delete/@item.DienNuocId" method="post" style="display:inline;" onsubmit="return confirm('Hủy kết quả chốt số này?');">
-                                        <button type="submit" class="btn-action del"><i data-lucide="trash-2" style="width: 16px;"></i></button>
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn-action del" title="Hủy kết quả chốt số"><i data-lucide="trash-2" style="width: 16px;"></i></button>
                                     </form>
                                 </div>
                             </td>

@@ -1,9 +1,8 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.SignalR;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using QuanlyKTX.Hubs;
 using QuanlyKTX.Models;
+using Microsoft.AspNetCore.SignalR;
+using QuanlyKTX.Hubs;
 using System;
 using System.IO;
 using System.Linq;
@@ -15,7 +14,6 @@ namespace QuanlyKTX.Areas.Admin.Controllers
     [Area("Admin")]
     [Route("api/[controller]")]
     [ApiController]
-    [AllowAnonymous] 
     public class AiController : ControllerBase
     {
         private readonly KtxthongminhContext _context;

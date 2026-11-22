@@ -1,4 +1,5 @@
-from flask import Flask, Response
+
+from flask import Flask, Response, jsonify
 import cv2
 import numpy as np
 from deepface import DeepFace
@@ -17,8 +18,8 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 app = Flask(__name__)
 camera = cv2.VideoCapture(0)
 
-URL_WEB_API = "https://localhost:44315/api/Ai/xac-thuc-khuon-mat"
-URL_GET_NAMES = "https://localhost:44315/api/Ai/danh-sach-ten"
+URL_WEB_API = "https://localhost:7241/api/Ai/xac-thuc-khuon-mat"
+URL_GET_NAMES = "https://localhost:7241/api/Ai/danh-sach-ten"
 THU_MUC_DB_ANH = "DbAnhSinhVien"
 
 print("🧠 Đang tải mô hình YOLOv8...")
@@ -127,7 +128,7 @@ def ai_processing_thread():
                     if len(emb_objs) > 0:
                         cam_vector = emb_objs[0]["embedding"]
                         best_mssv, min_dist = None, 100.0
-# vẽ khung hình yolo phát hiện mặt
+
                         for sv in kho_vector_khuon_mat:
                             dist = tinh_cosine(sv["vector"], cam_vector)
                             if dist < min_dist:
@@ -152,7 +153,7 @@ def ai_processing_thread():
         time.sleep(0.05)
 
 threading.Thread(target=ai_processing_thread, daemon=True).start()
-
+latest_raw_frame = None
 def generate_frames():
     global is_scanning, draw_box, draw_label, draw_color, face_evidence
     while True:
@@ -161,12 +162,13 @@ def generate_frames():
         
         # CAMERA LUÔN BẬT NHƯNG CHƯA QUÉT AI
         if not is_scanning:
-            cv2.putText(frame, "CAMERA KTX 1 ", (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+            # Vẽ dòng chữ xanh thông báo trạng thái lên màn hình thực
+            cv2.putText(frame, "CAMERA CONG KTX 1 ", (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
             ret, buffer = cv2.imencode('.jpg', frame)
             yield (b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' + buffer.tobytes() + b'\r\n')
-            time.sleep(0.05) 
+            time.sleep(0.05) # Ngủ một chút để tiết kiệm CPU khi chỉ xem cam
             continue
-        
+            
         # KHI BẤM NÚT -> KÍCH HOẠT QUÉT BẰNG YOLO & HAAR CASCADE
         results = yolo_model(frame, verbose=False)
         has_person = False
@@ -205,7 +207,17 @@ def generate_frames():
 @app.route('/video_feed')
 def video_feed():
     return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
-
+@app.route('/snapshot')
+def snapshot():
+    if latest_raw_frame is None:
+        res = jsonify({"error": "Camera chua san sang"})
+        res.headers.add("Access-Control-Allow-Origin", "*")
+        return res, 503
+    _, buffer = cv2.imencode('.jpg', latest_raw_frame)
+    b64 = base64.b64encode(buffer).decode('utf-8')
+    res = jsonify({"image": f"data:image/jpeg;base64,{b64}"})
+    res.headers.add("Access-Control-Allow-Origin", "*")
+    return res
 if __name__ == '__main__':
-    print("🚀 TRẠM AI CHUÔNG CỬA ĐANG CHẠY ")
+    print("🚀 TRẠM AI CHUÔNG CỬA ĐANG CHẠY TẠI CỔNG 5000!")
     app.run(host='0.0.0.0', port=5000, debug=False, use_reloader=False)

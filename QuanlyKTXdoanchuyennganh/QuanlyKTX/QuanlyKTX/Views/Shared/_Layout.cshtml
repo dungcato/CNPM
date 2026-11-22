@@ -51,7 +51,7 @@
                         <i data-lucide="key"></i> Đăng ký thuê phòng
                     </a>
                 </li>
-                @* <li class="nav-item">
+                <li class="nav-item">
                     <a href="/Phong/DangKyChuyenPhong" class="nav-link @(ctrl == "Phong" && action == "DangKyChuyenPhong" ? "active" : "")">
                         <i data-lucide="arrow-right-left"></i> Xin chuyển phòng
                     </a>
@@ -75,9 +75,8 @@
                     <a href="/PhanAnh/TheoDoi" class="nav-link @(ctrl == "PhanAnh" && action == "TheoDoi" ? "active" : "")">
                         <i data-lucide="search"></i> Theo dõi phản ánh
                     </a>
-                </li> *@
+                </li>
 
-                <!-- PHẦN BỔ SUNG: BẢO MẬT & ĐỔI MẬT KHẨU -->
                 <li class="nav-item">
                     <a href="@Url.Action("DoiMatKhau", "Account")"
                        class="nav-link @(ctrl == "Account" && action == "DoiMatKhau" ? "active" : "")">
@@ -86,9 +85,12 @@
                 </li>
 
                 <li class="nav-item" style="margin-top: 30px; border-top: 1px solid rgba(255,255,255,0.1);">
-                    <a href="/Account/Logout" class="nav-link text-danger">
-                        <i data-lucide="log-out"></i> Đăng xuất
-                    </a>
+                    <form action="/Account/Logout" method="post" style="margin: 0; padding: 0;">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="nav-link text-danger" style="width: 100%; border: none; background: none; text-align: left; cursor: pointer; display: flex; align-items: center; gap: 10px; font-family: inherit; font-size: inherit;">
+                            <i data-lucide="log-out"></i> Đăng xuất
+                        </button>
+                    </form>
                 </li>
             </ul>
         </aside>
@@ -101,7 +103,7 @@
                     </button>
                     <div class="search-bar">
                         <i data-lucide="search" style="width: 18px; height: 18px; color: #64748b;"></i>
-                        <input type="text" placeholder="Tìm kiếm thông tin...">
+                        <input type="text" placeholder="Tìm kiếm thông diễn...">
                     </div>
                 </div>
 

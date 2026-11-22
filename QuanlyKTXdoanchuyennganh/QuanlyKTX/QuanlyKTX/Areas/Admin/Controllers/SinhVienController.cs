@@ -58,35 +58,19 @@ namespace QuanlyKTX.Areas.Admin.Controllers
                 return View(sv);
             }
 
-            //try
-            //{
-            var tkMoi = new TaiKhoan
+            try
             {
-                TenDangNhap = sv.Mssv,
-                MatKhauHash = TaiKhoanController.ComputeMd5Hash("123456"),
-                VaiTroId = 3,
-                TrangThai = true,
-                NgayTao = DateTime.Now
-            };
-
-            _context.TaiKhoans.Add(tkMoi);
-            _context.SaveChanges();
-
-            sv.TaiKhoanId = _context.TaiKhoans
-                .Where(taiKhoan => taiKhoan.TenDangNhap == sv.Mssv)
-                .FirstOrDefault().TaiKhoanId;
-
-            _context.SinhViens.Add(sv);
-            await _context.SaveChangesAsync();
-            TempData["Success"] = "Đã thêm mới hồ sơ sinh viên thành công!";
-            return RedirectToAction(nameof(Index));
-            //}
-            //catch (System.Exception ex)
-            //{
-            //    TempData["Error"] = "Lỗi khi lưu dữ liệu: " + ex.Message;
-            //    ViewBag.PhongList = _context.Phongs.ToList();
-            //    return View(sv);
-            //}
+                _context.SinhViens.Add(sv);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Đã thêm mới hồ sơ sinh viên thành công!";
+                return RedirectToAction(nameof(Index));
+            }
+            catch (System.Exception ex)
+            {
+                TempData["Error"] = "Lỗi khi lưu dữ liệu: " + ex.Message;
+                ViewBag.PhongList = _context.Phongs.ToList();
+                return View(sv);
+            }
         }
 
         // 4. FORM CẬP NHẬT (GET)

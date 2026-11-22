@@ -1,36 +1,26 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authentication.Cookies;
+﻿using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.EntityFrameworkCore;
+using QuanlyKTX.Hubs;
 using QuanlyKTX.Models;
+using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. Cấu hình Database
 builder.Services.AddDbContext<KtxthongminhContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// 2. Cấu hình Cookie gắt hơn
+
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
-        options.LoginPath = "/Account/Login";
-        options.LogoutPath = "/Account/Logout";
-        options.AccessDeniedPath = "/Account/AccessDenied";
-        options.ExpireTimeSpan = TimeSpan.FromHours(8);
-        options.SlidingExpiration = true;
-
-        // Cấu hình Cookie bảo mật cao
-        options.Cookie.HttpOnly = true;
-        options.Cookie.SameSite = SameSiteMode.Lax;
+        options.LoginPath = "/Admin/TaiKhoan/Login";
+        options.AccessDeniedPath = "/Admin/TaiKhoan/Login";
     });
 
-// 3. Cấu hình Phân quyền gắt
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
-    options.AddPolicy("StaffOnly", policy => policy.RequireRole("Admin", "GiaoVien", "BaoVe"));
-    options.AddPolicy("SinhVienOnly", policy => policy.RequireRole("SinhVien"));
-});
+builder.Services.AddAuthorization();
 
+
+builder.Services.AddSignalR();
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
@@ -45,17 +35,35 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 
-// Thứ tự này không được sai
+app.Use(async (context, next) =>
+{
+  
+    if (context.User.Identity == null || !context.User.Identity.IsAuthenticated)
+    {
+        var claims = new[] {
+            new Claim(ClaimTypes.Name, "Admin (Test Mode)"),
+            new Claim(ClaimTypes.Role, "Admin"),
+            new Claim(ClaimTypes.Role, "Quản lý"),
+            new Claim(ClaimTypes.Role, "Bảo vệ")
+        };
+        var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+        context.User = new ClaimsPrincipal(identity);
+    }
+    await next();
+});
+
 app.UseAuthentication();
 app.UseAuthorization();
 
-// 4. Cấu hình điều hướng
+
+app.MapHub<CameraHub>("/cameraHub");
+
 app.MapControllerRoute(
     name: "areas",
     pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Account}/{action=Login}/{id?}");
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();

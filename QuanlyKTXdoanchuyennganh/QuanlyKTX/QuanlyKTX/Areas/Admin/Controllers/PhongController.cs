@@ -67,7 +67,6 @@ namespace QuanlyKTX.Areas.Admin.Controllers
             ViewBag.phanAnhList = _context.PhanAnhs
                 .Include(phanAnh => phanAnh.MssvNavigation)
                 .Where(phanAnh => phanAnh.LoaiSuCo == "Đăng ký phòng")
-                .OrderByDescending(phanAnh => phanAnh.NgayGui)
                 .ToList();
 
             ViewBag.loaiPhongList = _context.LoaiPhongs.ToList();

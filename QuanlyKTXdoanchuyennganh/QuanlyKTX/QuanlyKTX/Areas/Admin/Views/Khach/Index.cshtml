@@ -567,70 +567,59 @@
         </table>
     </div>
 </div>
-
 @section Scripts {
     <script src="~/admin/lib/snote/jquery.min.js"></script>
-
-        {{-- jQuery UI - dùng CDN cho chắc vì theme smoothness là bắt buộc --}}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/themes/smoothness/jquery-ui.min.css" />
     <script src="~/admin/lib/jqueryui/jquery-ui.min.js"></script>
-
     <link rel="stylesheet" href="~/admin/lib/elFinder/css/elfinder.full.css" />
     <link rel="stylesheet" href="~/admin/lib/elFinder/css/theme.min.css" />
     <script src="~/admin/lib/elFinder/js/elfinder.min.js"></script>
-
-
-    <script src="~/admin/lib/elFinder/js/elfinder.min.js"></script>
-    <link rel="stylesheet" href="~/admin/lib/elFinder/css/elfinder.full.css" />
-    <link rel="stylesheet" href="~/admin/lib/elFinder/css/theme.min.css" />
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/webcamjs/1.0.26/webcam.min.js"></script>
 
     <script>
         if (typeof lucide !== 'undefined') { lucide.createIcons(); }
 
-        // ==========================================
-        // 1. CẤU HÌNH WEBCAM
-        // ==========================================
-        document.addEventListener("DOMContentLoaded", function() {
-            Webcam.set({
-                width: 320,
-                height: 240,
-                image_format: 'jpeg',
-                jpeg_quality: 90,
-                flip_horiz: true
-            });
+        const PYTHON_STREAM_URL = "http://127.0.0.1:5000/video_feed";
+        const PYTHON_SNAPSHOT_URL = "http://127.0.0.1:5000/snapshot";
 
-            Webcam.attach('#camera_viewport');
-            Webcam.on('load', function() {
-                document.getElementById('cam_status').style.display = 'none';
-            });
-        });
-
-        // Hàm Bấm Chụp Ảnh (Webcam)
-        function takeSnapshot() {
-            Webcam.snap(function(data_uri) {
-                document.getElementById('snapshot_result').innerHTML = '<img src="'+data_uri+'"/>';
-
-                document.getElementById('camera_viewport').style.display = 'none';
-                document.getElementById('snapshot_result').style.display = 'block';
-
-                // Đổi nút
-                document.querySelector('.btn-cam.capture').style.display = 'none';
-                document.querySelector('.btn-cam.elfinder').style.display = 'none';
-                document.querySelector('.btn-cam.retake').style.display = 'flex';
-
-                // Gán dữ liệu
-                document.getElementById('faceImageData').value = data_uri;
-                document.getElementById('anhElfinder').value = ''; // Reset elfinder
-            });
+        function startPythonStream() {
+            const viewport = document.getElementById('camera_viewport');
+            viewport.style.display = 'flex';
+            viewport.innerHTML = `<img src="${PYTHON_STREAM_URL}?t=${new Date().getTime()}"
+                                               style="width:100%; height:100%; object-fit:cover;"
+                                               onerror="this.parentElement.innerHTML='<span style=\\'padding:15px; text-align:center; font-size:0.85rem; color:#f87171;\\'>Chưa bật trạm AI Python (Port 5000)</span>'" />`;
         }
 
-        // ==========================================
-        // 2. MỞ KHO ẢNH ELFINDER
-        // ==========================================
-        $(document).ready(function() {
-            $("#btnSelectImageFromElfinder").on("click", function() {
+        document.addEventListener("DOMContentLoaded", function () {
+            startPythonStream();
+        });
+
+        function takeSnapshot() {
+            fetch(PYTHON_SNAPSHOT_URL)
+                .then(res => {
+                    if (!res.ok) throw new Error("Không lấy được khung hình");
+                    return res.json();
+                })
+                .then(data => {
+                    const data_uri = data.image;
+                    document.getElementById('snapshot_result').innerHTML = '<img src="' + data_uri + '"/>';
+                    document.getElementById('camera_viewport').style.display = 'none';
+                    document.getElementById('snapshot_result').style.display = 'block';
+
+                    document.querySelector('.btn-cam.capture').style.display = 'none';
+                    document.querySelector('.btn-cam.elfinder').style.display = 'none';
+                    document.querySelector('.btn-cam.retake').style.display = 'flex';
+
+                    document.getElementById('faceImageData').value = data_uri;
+                    document.getElementById('anhElfinder').value = '';
+                })
+                .catch(err => {
+                    alert("Lỗi chụp ảnh: Hãy đảm bảo file ai_camera.py đang chạy ở cổng 5000!");
+                    console.error(err);
+                });
+        }
+
+        $(document).ready(function () {
+            $("#btnSelectImageFromElfinder").on("click", function () {
                 $('<div/>').dialogelfinder({
                     baseUrl: "/admin/lib/elFinder/",
                     url: '/Admin/el-finder-file-system/connector',
@@ -639,20 +628,16 @@
                     height: 450,
                     destroyOnClose: true,
                     getFileCallback: function (files) {
-                        // Hiển thị ảnh vừa chọn
                         $('#snapshot_result').html('<img src="' + files.url + '"/>');
                         $('#camera_viewport').hide();
                         $('#snapshot_result').show();
 
-                        // Đổi nút
                         $('.btn-cam.capture').hide();
                         $('.btn-cam.elfinder').hide();
                         $('.btn-cam.retake').css('display', 'flex');
 
-                        // Gán link ảnh vào input gửi lên Controller
                         $('#anhElfinder').val(files.url);
-                        $('#faceImageData').val(''); // Reset webcam
-                        Webcam.reset(); // Tắt webcam cho đỡ tốn tài nguyên
+                        $('#faceImageData').val('');
                     },
                     commandsOptions: { getfile: { oncomplete: 'close', folders: false } },
                     onlyMimes: ["image"]
@@ -660,14 +645,11 @@
             });
         });
 
-        // ==========================================
-        // 3. TẢI ẢNH TỪ MÁY TÍNH
-        // ==========================================
         function previewUploadedImage(input) {
             if (input.files && input.files[0]) {
                 var reader = new FileReader();
-                reader.onload = function(e) {
-                    document.getElementById('snapshot_result').innerHTML = '<img src="'+e.target.result+'"/>';
+                reader.onload = function (e) {
+                    document.getElementById('snapshot_result').innerHTML = '<img src="' + e.target.result + '"/>';
                     document.getElementById('camera_viewport').style.display = 'none';
                     document.getElementById('snapshot_result').style.display = 'block';
 
@@ -675,18 +657,13 @@
                     document.querySelector('.btn-cam.elfinder').style.display = 'none';
                     document.querySelector('.btn-cam.retake').style.display = 'flex';
 
-                    // Reset các nguồn ảnh khác
                     document.getElementById('faceImageData').value = '';
                     document.getElementById('anhElfinder').value = '';
-                    Webcam.reset();
-                }
+                };
                 reader.readAsDataURL(input.files[0]);
             }
         }
 
-        // ==========================================
-        // 4. HỦY ẢNH ĐỂ CHỌN LẠI TỪ ĐẦU
-        // ==========================================
         function resetCamera() {
             document.getElementById('camera_viewport').style.display = 'flex';
             document.getElementById('snapshot_result').style.display = 'none';
@@ -695,14 +672,11 @@
             document.querySelector('.btn-cam.elfinder').style.display = 'flex';
             document.querySelector('.btn-cam.retake').style.display = 'none';
 
-            // Dọn sạch mọi thẻ input và file upload
             document.getElementById('faceImageData').value = '';
             document.getElementById('anhElfinder').value = '';
             document.querySelector('input[type="file"]').value = '';
 
-            // Bật lại Webcam
-            Webcam.attach('#camera_viewport');
-            document.getElementById('cam_status').style.display = 'block';
+            startPythonStream();
         }
     </script>
 }

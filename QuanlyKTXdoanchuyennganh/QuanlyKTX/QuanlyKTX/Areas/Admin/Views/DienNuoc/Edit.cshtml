@@ -1,7 +1,7 @@
 ﻿@model QuanlyKTX.Models.DienNuoc
 @{
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
-    ViewData["Title"] = "Hiệu chỉnh Số liệu Điện Nước";
+    ViewData["Title"] = "Xử lý Lỗi IoT & Chỉ số";
 }
 
 <style>
@@ -31,7 +31,6 @@
         border-radius: 8px;
         border: 1px solid #cbd5e1;
         transition: 0.2s;
-        box-sizing: border-box;
     }
 
         .form-input:focus {
@@ -60,47 +59,34 @@
         }
 </style>
 
-<div style="margin-bottom: 25px; display: flex; align-items: center; justify-content: space-between;">
-    <div style="display: flex; align-items: center; gap: 15px;">
-        <a href="/Admin/DienNuoc/Index" style="background: white; border: 1px solid #cbd5e1; color: #64748b; padding: 10px 15px; border-radius: 8px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 8px;">
-            <i data-lucide="arrow-left" style="width: 18px;"></i> Trở lại
-        </a>
-        <div>
-            <h2 style="font-size: 1.5rem; font-weight: 800; color: #1e293b; margin: 0 0 3px 0;">Hiệu chỉnh Số liệu Tiêu thụ - Phòng @Model?.PhongId</h2>
-            <p style="color: #64748b; font-size: 0.9rem; margin: 0;">Chỉnh sửa chỉ số điện nước kỳ @Model?.Thang/@Model?.Nam.</p>
-        </div>
-    </div>
+<div style="margin-bottom: 25px; display: flex; align-items: center; gap: 15px;">
+    <a href="/Admin/DienNuoc/Index" style="background: white; border: 1px solid #cbd5e1; color: #64748b; padding: 10px 15px; border-radius: 8px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+        <i data-lucide="arrow-left" style="width: 18px;"></i> Trở lại
+    </a>
+    <h2 style="font-size: 1.5rem; font-weight: 800; color: #1e293b; margin: 0;">Hiệu chỉnh Số liệu Tiêu thụ</h2>
 </div>
 
 <div class="card-panel">
-    @if (TempData["Error"] != null)
-    {
-        <div style="padding: 15px; margin-bottom: 20px; background: #fee2e2; color: #dc2626; border-radius: 8px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
-            <i data-lucide="alert-circle" style="width: 20px;"></i> @TempData["Error"]
-        </div>
-    }
-
     <form action="/Admin/DienNuoc/Edit" method="post">
-        @Html.AntiForgeryToken()
         <input type="hidden" name="DienNuocId" value="@Model?.DienNuocId" />
 
         @if (ViewBag.DaCoHoaDon == true)
         {
             <div style="background: #fef2f2; padding: 20px; border-radius: 12px; border: 1px dashed #ef4444; margin-bottom: 25px; display: flex; align-items: center; gap: 15px; color: #b91c1c;">
-                <i data-lucide="alert-octagon" style="width: 30px; height: 30px; flex-shrink: 0;"></i>
+                <i data-lucide="alert-octagon" style="width: 30px; height: 30px;"></i>
                 <div>
-                    <h4 style="margin: 0 0 5px 0; font-size: 1.05rem; font-weight: 700;">Cảnh báo: Phòng này ĐÃ PHÁT HÀNH HÓA ĐƠN</h4>
-                    <p style="margin: 0; font-size: 0.9rem;">Hệ thống phát hiện Hóa Đơn của tháng này đã được tạo. Nếu bạn sửa số liệu ở đây, hệ thống sẽ <b>TỰ ĐỘNG ĐỒNG BỘ CẬP NHẬT LẠI TIỀN</b> trong hóa đơn để đảm bảo dữ liệu khớp nhau.</p>
+                    <h4 style="margin: 0 0 5px 0; font-size: 1.05rem;">Cảnh báo: Phòng này ĐÃ PHÁT HÀNH HÓA ĐƠN</h4>
+                    <p style="margin: 0; font-size: 0.9rem;">Hệ thống phát hiện Hóa Đơn của tháng này đã được tạo. Nếu bạn sửa số liệu ở đây, hệ thống sẽ <b>CƯỠNG CHẾ CẬP NHẬT LẠI TIỀN</b> trong hóa đơn để đảm bảo dữ liệu khớp nhau.</p>
                 </div>
             </div>
         }
         else
         {
             <div style="background: #f0fdf4; padding: 20px; border-radius: 12px; border: 1px dashed #10b981; margin-bottom: 25px; display: flex; align-items: center; gap: 15px; color: #047857;">
-                <i data-lucide="check-circle" style="width: 30px; height: 30px; flex-shrink: 0;"></i>
+                <i data-lucide="check-circle" style="width: 30px; height: 30px;"></i>
                 <div>
-                    <h4 style="margin: 0 0 5px 0; font-size: 1.05rem; font-weight: 700;">Hóa đơn kỳ này chưa phát hành</h4>
-                    <p style="margin: 0; font-size: 0.9rem;">Bạn có thể chỉnh sửa lại số liệu công tơ thực tế ở đây và bấm <b>Lưu Thay Đổi</b>.</p>
+                    <h4 style="margin: 0 0 5px 0; font-size: 1.05rem;">An toàn: Hóa đơn chưa được tạo</h4>
+                    <p style="margin: 0; font-size: 0.9rem;">Bạn cứ thoải mái sửa đổi số đo thực tế bị sai ở đây và bấm Lưu. Sau khi ưng ý, hãy ra ngoài danh sách bấm <b>Xác nhận Tạo hóa đơn</b>.</p>
                 </div>
             </div>
         }
@@ -109,9 +95,7 @@
 
             <!-- CỘT 1: Cấu hình cơ bản -->
             <div style="background: #f8fafc; padding: 25px; border-radius: 12px; border: 1px solid #e2e8f0;">
-                <h4 style="margin-top: 0; color: #4f46e5; font-weight: 800; border-bottom: 2px solid #e0e7ff; padding-bottom: 10px; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
-                    <i data-lucide="home" style="width: 20px;"></i> Thông Tin Biểu Mẫu (Cố định)
-                </h4>
+                <h4 style="margin-top: 0; color: #4f46e5; font-weight: 800; border-bottom: 2px solid #e0e7ff; padding-bottom: 10px; margin-bottom: 20px;"><i data-lucide="home" style="display: inline-block; vertical-align: text-bottom; width: 20px;"></i> Thông Tin Biểu Mẫu (Khóa)</h4>
 
                 <div class="form-group">
                     <label>Phòng thu tiền</label>
@@ -146,9 +130,7 @@
 
             <!-- CỘT 2: Tùy chỉnh & Hiển thị Hóa Đơn Sinh Ra -->
             <div style="background: #fff; padding: 25px; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
-                <h4 style="margin-top: 0; color: #f59e0b; font-weight: 800; border-bottom: 2px solid #fef3c7; padding-bottom: 10px; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
-                    <i data-lucide="edit-3" style="width: 20px;"></i> Nhập Lại Chỉ Số Thực Tế
-                </h4>
+                <h4 style="margin-top: 0; color: #f59e0b; font-weight: 800; border-bottom: 2px solid #fef3c7; padding-bottom: 10px; margin-bottom: 20px;"><i data-lucide="edit-3" style="display: inline-block; vertical-align: text-bottom; width: 20px;"></i> Nhập Lại Chỉ Số Thực Tế</h4>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                     <div class="form-group">
@@ -156,7 +138,7 @@
                         <input type="number" name="DienCu" id="dienCu" value="@Model?.DienCu" required class="form-input auto-calc" />
                     </div>
                     <div class="form-group">
-                        <label style="color: #b91c1c;">Điện Mới <span style="color:red">*</span></label>
+                        <label style="color: #b91c1c;">Điện Mới</label>
                         <input type="number" name="DienMoi" id="dienMoi" value="@Model?.DienMoi" required class="form-input auto-calc" style="border-color: #fca5a5; background: #fef2f2;" />
                     </div>
                 </div>
@@ -167,15 +149,13 @@
                         <input type="number" name="NuocCu" id="nuocCu" value="@Model?.NuocCu" required class="form-input auto-calc" />
                     </div>
                     <div class="form-group">
-                        <label style="color: #0369a1;">Nước Mới <span style="color:red">*</span></label>
+                        <label style="color: #0369a1;">Nước Mới</label>
                         <input type="number" name="NuocMoi" id="nuocMoi" value="@Model?.NuocMoi" required class="form-input auto-calc" style="border-color: #7dd3fc; background: #f0f9ff;" />
                     </div>
                 </div>
 
                 <!-- BẢNG TÍNH TIỀN HÓA ĐƠN TRỰC TIẾP -->
-                <h4 style="margin-top: 25px; color: #10b981; font-weight: 800; border-bottom: 2px solid #dcfce7; padding-bottom: 10px; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
-                    <i data-lucide="calculator" style="width: 18px;"></i> Dự kiến Tiền phát sinh
-                </h4>
+                <h4 style="margin-top: 25px; color: #10b981; font-weight: 800; border-bottom: 2px solid #dcfce7; padding-bottom: 10px; margin-bottom: 15px;"><i data-lucide="calculator" style="display: inline-block; vertical-align: text-bottom; width: 20px;"></i> Dự kiến Tiền phát sinh</h4>
                 <div style="background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px dashed #cbd5e1;">
                     <div class="calc-result">
                         <span>Tiêu thụ Điện (<span id="ttDien" style="font-weight: 700; color: #2563eb;">0</span>)</span>
@@ -186,19 +166,16 @@
                         <span id="tienNuoc" style="font-weight: 700; color: #475569;">0 đ</span>
                     </div>
                     <div class="calc-result">
-                        <span>TỔNG TIỀN DỰ KIẾN</span>
+                        <span>TỔNG CỘNG</span>
                         <span id="tongTien">0 đ</span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div style="display: flex; justify-content: flex-end; align-items: center; gap: 15px; border-top: 1px solid #f1f5f9; padding-top: 25px; margin-top: 25px;">
-            <a href="/Admin/DienNuoc/Index" style="background: #f1f5f9; color: #64748b; padding: 12px 25px; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 8px;">
-                <i data-lucide="x" style="width: 18px;"></i> Hủy
-            </a>
-            <button type="submit" style="background: #3b82f6; color: white; padding: 12px 35px; font-size: 1.05rem; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 10px; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);">
-                <i data-lucide="save" style="width: 18px;"></i> Ghi nhận Chỉ số sửa đổi
+        <div style="text-align: right; border-top: 1px solid #f1f5f9; padding-top: 25px; margin-top: 20px;">
+            <button type="submit" style="background: #3b82f6; color: white; padding: 12px 40px; font-size: 1.05rem; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 10px; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);">
+                <i data-lucide="save"></i> Ghi nhận Chỉ số sửa đổi
             </button>
         </div>
     </form>
@@ -209,7 +186,7 @@
         if (typeof lucide !== 'undefined') { lucide.createIcons(); }
 
         // SCRIPT TÍNH TOÁN TIỀN REAL-TIME KHI GÕ SỐ
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             const dienCu = document.getElementById('dienCu');
             const dienMoi = document.getElementById('dienMoi');
             const nuocCu = document.getElementById('nuocCu');

@@ -103,7 +103,6 @@ namespace QuanlyKTX.Areas.Admin.Controllers
 
         // 3. XỬ LÝ LƯU HÓA ĐƠN (POST)
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(HoaDon hd)
         {
             try
@@ -136,7 +135,6 @@ namespace QuanlyKTX.Areas.Admin.Controllers
 
         // 4. XÁC NHẬN THANH TOÁN NHANH
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Pay(int id, string phuongThuc)
         {
             var hd = await _context.HoaDons.FindAsync(id);
@@ -153,7 +151,6 @@ namespace QuanlyKTX.Areas.Admin.Controllers
 
         // 5. XÓA HÓA ĐƠN
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
             var hd = await _context.HoaDons.FindAsync(id);
@@ -185,7 +182,6 @@ namespace QuanlyKTX.Areas.Admin.Controllers
 
         // 7. XỬ LÝ CẬP NHẬT
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(HoaDon hd)
         {
             try
@@ -231,7 +227,6 @@ namespace QuanlyKTX.Areas.Admin.Controllers
 
         // 8. GỬI NHẮC NHỞ
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Remind(int id)
         {
             var hd = await _context.HoaDons

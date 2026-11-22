@@ -79,11 +79,11 @@ namespace QuanlyKTX.Areas.Admin.Controllers
             return View(danhSach);
         }
 
-        // 2. NHẬP SỐ MỚI THỦ CÔNG
+        // 2. NHẬP SỐ MỚI
         [HttpGet]
         public IActionResult Create()
         {
-            ViewBag.PhongList = _context.Phongs.OrderBy(p => p.PhongId).ToList();
+            ViewBag.PhongList = _context.Phongs.ToList();
             ViewBag.ThangHienTai = DateTime.Now.Month;
             ViewBag.NamHienTai = DateTime.Now.Year;
             return View();
@@ -91,24 +91,15 @@ namespace QuanlyKTX.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(DienNuoc dn, bool taoHoaDon = false)
+        public async Task<IActionResult> Create(DienNuoc dn)
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(dn.PhongId))
-                {
-                    TempData["Error"] = "Vui lòng chọn phòng cần ghi nhận!";
-                    ViewBag.PhongList = _context.Phongs.OrderBy(p => p.PhongId).ToList();
-                    ViewBag.ThangHienTai = dn.Thang;
-                    ViewBag.NamHienTai = dn.Nam;
-                    return View(dn);
-                }
-
                 bool daTonTai = await _context.DienNuocs.AnyAsync(d => d.PhongId == dn.PhongId && d.Thang == dn.Thang && d.Nam == dn.Nam);
                 if (daTonTai)
                 {
-                    TempData["Error"] = $"Phòng {dn.PhongId} đã có chỉ số trong kỳ {dn.Thang}/{dn.Nam}. Vui lòng chọn biểu tượng 'Sửa' trong danh sách!";
-                    return RedirectToAction(nameof(Index), new { searchThang = dn.Thang, searchNam = dn.Nam });
+                    TempData["Error"] = $"Phòng {dn.PhongId} đã có chỉ số kỳ này. Vui lòng chọn Sửa ở ngoài danh sách!";
+                    return RedirectToAction(nameof(Index));
                 }
 
                 if (dn.DienCu == null || dn.NuocCu == null)
@@ -120,54 +111,13 @@ namespace QuanlyKTX.Areas.Admin.Controllers
                     dn.NuocCu ??= prevDN?.NuocMoi ?? 0;
                 }
 
-                dn.DonGiaDien ??= 3500;
-                dn.DonGiaNuoc ??= 15000;
-                dn.NguonNhap = "Thủ công";
-                dn.NgayChot = DateTime.Now;
+                dn.DonGiaDien ??= 3500; dn.DonGiaNuoc ??= 15000;
+                dn.NguonNhap = "Thủ công"; dn.NgayChot = DateTime.Now;
 
                 _context.DienNuocs.Add(dn);
                 await _context.SaveChangesAsync();
 
-                if (taoHoaDon)
-                {
-                    bool hdTonTai = await _context.HoaDons.AnyAsync(h => h.PhongId == dn.PhongId && h.Thang == dn.Thang && h.Nam == dn.Nam);
-                    if (!hdTonTai)
-                    {
-                        decimal tienDien = Math.Max(0, (dn.DienMoi ?? 0) - (dn.DienCu ?? 0)) * (dn.DonGiaDien ?? 3500);
-                        decimal tienNuoc = Math.Max(0, (dn.NuocMoi ?? 0) - (dn.NuocCu ?? 0)) * (dn.DonGiaNuoc ?? 15000);
-
-                        var sv = await _context.SinhViens.FirstOrDefaultAsync(s => s.PhongDangOid == dn.PhongId && s.TrangThai == "Đang lưu trú");
-
-                        var newHd = new HoaDon
-                        {
-                            MaHoaDon = "INV-" + DateTime.Now.ToString("MMyyHHmm") + "-" + dn.PhongId,
-                            PhongId = dn.PhongId,
-                            Mssv = sv?.Mssv,
-                            Thang = dn.Thang,
-                            Nam = dn.Nam,
-                            TienDien = tienDien,
-                            TienNuoc = tienNuoc,
-                            TienPhong = 0,
-                            PhiDichVu = 0,
-                            TongTien = tienDien + tienNuoc,
-                            TrangThai = "Chưa thanh toán",
-                            GhiChu = "Phát hành từ nhập chỉ số thủ công."
-                        };
-
-                        _context.HoaDons.Add(newHd);
-                        await _context.SaveChangesAsync();
-                        TempData["Success"] = $"Đã lưu chỉ số và phát hành Hóa đơn cho phòng {dn.PhongId}!";
-                    }
-                    else
-                    {
-                        TempData["Success"] = $"Đã lưu chỉ số phòng {dn.PhongId} (Phòng đã có hóa đơn kỳ này trước đó).";
-                    }
-                }
-                else
-                {
-                    TempData["Success"] = $"Đã lưu chỉ số điện nước phòng {dn.PhongId} thành công!";
-                }
-
+                TempData["Success"] = $"Đã ghi nhận chỉ số phòng {dn.PhongId}.";
                 return RedirectToAction(nameof(Index), new { searchThang = dn.Thang, searchNam = dn.Nam });
             }
             catch (Exception ex)
@@ -179,20 +129,10 @@ namespace QuanlyKTX.Areas.Admin.Controllers
 
         // 3. CẬP NHẬT CHỈ SỐ
         [HttpGet]
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int id)
         {
-            if (id == null || id <= 0)
-            {
-                TempData["Error"] = "Vui lòng chọn một phòng cụ thể trong danh sách để chỉnh sửa chỉ số!";
-                return RedirectToAction(nameof(Index));
-            }
-
-            var dn = await _context.DienNuocs.FindAsync(id.Value);
-            if (dn == null)
-            {
-                TempData["Error"] = $"Không tìm thấy dữ liệu chỉ số điện nước (ID: {id})!";
-                return RedirectToAction(nameof(Index));
-            }
+            var dn = await _context.DienNuocs.FindAsync(id);
+            if (dn == null) return NotFound();
 
             bool daCoBill = await _context.HoaDons.AnyAsync(h => h.PhongId == dn.PhongId && h.Thang == dn.Thang && h.Nam == dn.Nam);
             ViewBag.DaCoHoaDon = daCoBill;
@@ -207,29 +147,19 @@ namespace QuanlyKTX.Areas.Admin.Controllers
             try
             {
                 var dbObj = await _context.DienNuocs.FindAsync(dn.DienNuocId);
-                if (dbObj == null)
-                {
-                    TempData["Error"] = "Không tìm thấy dữ liệu chỉ số cần cập nhật!";
-                    return RedirectToAction(nameof(Index));
-                }
+                if (dbObj == null) return NotFound();
 
-                dbObj.DienCu = dn.DienCu;
-                dbObj.DienMoi = dn.DienMoi;
-                dbObj.NuocCu = dn.NuocCu;
-                dbObj.NuocMoi = dn.NuocMoi;
-                dbObj.DonGiaDien = dn.DonGiaDien;
-                dbObj.DonGiaNuoc = dn.DonGiaNuoc;
+                dbObj.DienCu = dn.DienCu; dbObj.DienMoi = dn.DienMoi;
+                dbObj.NuocCu = dn.NuocCu; dbObj.NuocMoi = dn.NuocMoi;
+                dbObj.DonGiaDien = dn.DonGiaDien; dbObj.DonGiaNuoc = dn.DonGiaNuoc;
                 dbObj.NguonNhap = "Cập nhật thủ công";
-                dbObj.NgayChot = DateTime.Now;
 
                 var hd = await _context.HoaDons.FirstOrDefaultAsync(h => h.PhongId == dbObj.PhongId && h.Thang == dbObj.Thang && h.Nam == dbObj.Nam);
                 if (hd != null)
                 {
-                    decimal tienDien = Math.Max(0, (dbObj.DienMoi ?? 0) - (dbObj.DienCu ?? 0)) * (dbObj.DonGiaDien ?? 3500);
-                    decimal tienNuoc = Math.Max(0, (dbObj.NuocMoi ?? 0) - (dbObj.NuocCu ?? 0)) * (dbObj.DonGiaNuoc ?? 15000);
-                    hd.TienDien = tienDien;
-                    hd.TienNuoc = tienNuoc;
-                    hd.TongTien = (hd.TienPhong ?? 0) + tienDien + tienNuoc + (hd.PhiDichVu ?? 0);
+                    hd.TienDien = ((dbObj.DienMoi ?? 0) - (dbObj.DienCu ?? 0)) * (dbObj.DonGiaDien ?? 3500);
+                    hd.TienNuoc = ((dbObj.NuocMoi ?? 0) - (dbObj.NuocCu ?? 0)) * (dbObj.DonGiaNuoc ?? 15000);
+                    hd.TongTien = (hd.TienPhong ?? 0) + hd.TienDien + hd.TienNuoc + (hd.PhiDichVu ?? 0);
                     _context.HoaDons.Update(hd);
                 }
 
@@ -245,108 +175,70 @@ namespace QuanlyKTX.Areas.Admin.Controllers
         }
 
         // 4. TẠO HÓA ĐƠN ĐỒNG LOẠT
-        [HttpGet]
-        [ActionName("TaoHoaDonHangLoat")]
-        public IActionResult TaoHoaDonHangLoatGet(int? thang, int? nam)
-        {
-            // Tránh lỗi 404 / 405 nếu người dùng truy cập trực tiếp bằng URL GET hoặc refresh trình duyệt
-            int t = (thang.HasValue && thang.Value > 0) ? thang.Value : DateTime.Now.Month;
-            int n = (nam.HasValue && nam.Value > 0) ? nam.Value : DateTime.Now.Year;
-            return RedirectToAction(nameof(Index), new { searchThang = t, searchNam = n });
-        }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> TaoHoaDonHangLoat(int? thang, int? nam)
+        public async Task<IActionResult> TaoHoaDonHangLoat(int thang, int nam)
         {
-            int t = (thang.HasValue && thang.Value > 0) ? thang.Value : DateTime.Now.Month;
-            int n = (nam.HasValue && nam.Value > 0) ? nam.Value : DateTime.Now.Year;
+            var listChiSo = await _context.DienNuocs
+                .Where(d => d.Thang == thang && d.Nam == nam)
+                .ToListAsync();
 
-            try
+            int count = 0;
+            foreach (var dn in listChiSo)
             {
-                var listChiSo = await _context.DienNuocs
-                    .Where(d => d.Thang == t && d.Nam == n)
-                    .ToListAsync();
+                var hdTonTai = await _context.HoaDons.AnyAsync(h => h.PhongId == dn.PhongId && h.Thang == dn.Thang && h.Nam == dn.Nam);
 
-                if (listChiSo == null || !listChiSo.Any())
+                if (!hdTonTai)
                 {
-                    TempData["Error"] = $"Kỳ {t}/{n} chưa có chỉ số điện nước nào được ghi nhận. Vui lòng nhập chỉ số trước khi chốt sổ tạo hóa đơn!";
-                    return RedirectToAction(nameof(Index), new { searchThang = t, searchNam = n });
-                }
+                    decimal tienDien = ((dn.DienMoi ?? 0) - (dn.DienCu ?? 0)) * (dn.DonGiaDien ?? 3500);
+                    decimal tienNuoc = ((dn.NuocMoi ?? 0) - (dn.NuocCu ?? 0)) * (dn.DonGiaNuoc ?? 15000);
 
-                int count = 0;
-                foreach (var dn in listChiSo)
-                {
-                    var hdTonTai = await _context.HoaDons.AnyAsync(h => h.PhongId == dn.PhongId && h.Thang == dn.Thang && h.Nam == dn.Nam);
+                    var sv = await _context.SinhViens.FirstOrDefaultAsync(s => s.PhongDangOid == dn.PhongId && s.TrangThai == "Đang lưu trú");
 
-                    if (!hdTonTai)
+                    var newHd = new HoaDon
                     {
-                        decimal tienDien = Math.Max(0, (dn.DienMoi ?? 0) - (dn.DienCu ?? 0)) * (dn.DonGiaDien ?? 3500);
-                        decimal tienNuoc = Math.Max(0, (dn.NuocMoi ?? 0) - (dn.NuocCu ?? 0)) * (dn.DonGiaNuoc ?? 15000);
+                        MaHoaDon = "INV-" + DateTime.Now.ToString("MMyyHHmm") + "-" + dn.PhongId + "-" + count,
+                        PhongId = dn.PhongId,
+                        Mssv = sv?.Mssv,
+                        Thang = dn.Thang,
+                        Nam = dn.Nam,
+                        TienDien = tienDien,
+                        TienNuoc = tienNuoc,
+                        TienPhong = 0,
+                        PhiDichVu = 0,
+                        TongTien = tienDien + tienNuoc,
+                        TrangThai = "Chưa thanh toán",
+                        GhiChu = "Phát hành đồng loạt từ hệ thống."
+                    };
 
-                        var sv = await _context.SinhViens.FirstOrDefaultAsync(s => s.PhongDangOid == dn.PhongId && s.TrangThai == "Đang lưu trú");
-
-                        var newHd = new HoaDon
-                        {
-                            MaHoaDon = "INV-" + DateTime.Now.ToString("MMyyHHmm") + "-" + dn.PhongId + "-" + count,
-                            PhongId = dn.PhongId,
-                            Mssv = sv?.Mssv,
-                            Thang = dn.Thang,
-                            Nam = dn.Nam,
-                            TienDien = tienDien,
-                            TienNuoc = tienNuoc,
-                            TienPhong = 0,
-                            PhiDichVu = 0,
-                            TongTien = tienDien + tienNuoc,
-                            TrangThai = "Chưa thanh toán",
-                            GhiChu = "Phát hành đồng loạt từ hệ thống."
-                        };
-
-                        _context.HoaDons.Add(newHd);
-                        count++;
-                    }
-                }
-
-                if (count > 0)
-                {
-                    await _context.SaveChangesAsync();
-                    TempData["Success"] = $"Đã phát hành đồng loạt {count} Hóa Đơn thành công cho kỳ {t}/{n}!";
-                }
-                else
-                {
-                    TempData["Error"] = $"Tất cả các phòng có chỉ số trong kỳ {t}/{n} đều đã có hóa đơn từ trước.";
+                    _context.HoaDons.Add(newHd);
+                    count++;
                 }
             }
-            catch (Exception ex)
+
+            if (count > 0)
             {
-                TempData["Error"] = "Lỗi khi tạo hóa đơn đồng loạt: " + ex.Message;
+                await _context.SaveChangesAsync();
+                TempData["Success"] = $"Đã phát hành đồng loạt {count} Hóa Đơn thành công cho kỳ {thang}/{nam}!";
+            }
+            else
+            {
+                TempData["Error"] = "Không có hóa đơn mới nào được tạo thêm.";
             }
 
-            return RedirectToAction(nameof(Index), new { searchThang = t, searchNam = n });
+            return RedirectToAction(nameof(Index), new { searchThang = thang, searchNam = nam });
         }
 
-        // 5. HỦY CHỈ SỐ
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
-            try
+            var dn = await _context.DienNuocs.FindAsync(id);
+            if (dn != null)
             {
-                var dn = await _context.DienNuocs.FindAsync(id);
-                if (dn != null)
-                {
-                    _context.DienNuocs.Remove(dn);
-                    await _context.SaveChangesAsync();
-                    TempData["Success"] = "Đã hủy bản ghi chỉ số!";
-                }
-                else
-                {
-                    TempData["Error"] = "Không tìm thấy bản ghi chỉ số cần xóa.";
-                }
-            }
-            catch (Exception ex)
-            {
-                TempData["Error"] = "Lỗi khi xóa: " + ex.Message;
+                _context.DienNuocs.Remove(dn);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Đã hủy bản ghi chỉ số!";
             }
             return RedirectToAction(nameof(Index));
         }

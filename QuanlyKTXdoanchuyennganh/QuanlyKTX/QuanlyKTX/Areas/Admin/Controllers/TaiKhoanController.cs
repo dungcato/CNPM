@@ -114,7 +114,7 @@ namespace QuanlyKTX.Areas.Admin.Controllers
         // ==========================================
 
         // 1. Hàm băm MD5 cho Sinh viên
-        private string ComputeMd5Hash(string rawData)
+        public static string ComputeMd5Hash(string rawData)
         {
             using (MD5 md5 = MD5.Create())
             {
@@ -139,6 +139,62 @@ namespace QuanlyKTX.Areas.Admin.Controllers
                 for (int i = 0; i < bytes.Length; i++) builder.Append(bytes[i].ToString("x2"));
                 return builder.ToString();
             }
+        }
+
+        public IActionResult ToggleStatus(int id)
+        {
+            TaiKhoan taiKhoan = _context.TaiKhoans.Find(id);
+            taiKhoan.TrangThai = !taiKhoan.TrangThai;
+            _context.Update(taiKhoan);
+            _context.SaveChanges();
+            return RedirectToAction("Index");
+        }
+
+        public IActionResult Delete(int id)
+        {
+            List<SinhVien> sinhVienList = _context.SinhViens.Where(sinhVien => sinhVien.TaiKhoanId == id).ToList();
+
+            foreach (SinhVien sinhVien in sinhVienList)
+            {
+                List<PhanAnh> phanAnhList = _context.PhanAnhs.Where(phanAnh => phanAnh.Mssv == sinhVien.Mssv).ToList();
+
+                foreach (PhanAnh phanAnh in phanAnhList)
+                {
+                    _context.Remove(phanAnh);
+                    _context.SaveChanges();
+                }
+
+                List<HopDong> hopDongList = _context.HopDongs.Where(hopDong => hopDong.Mssv == sinhVien.Mssv).ToList();
+
+                foreach (HopDong hopDong in hopDongList)
+                {
+                    _context.Remove(hopDong);
+                    _context.SaveChanges();
+                }
+
+                List<Khach> khachList = _context.Khaches.Where(khach => khach.MssvBaoLanh == sinhVien.Mssv).ToList();
+
+                foreach (Khach khach in khachList)
+                {
+                    _context.Remove(khach);
+                    _context.SaveChanges();
+                }
+
+                List<HoaDon> hoaDonList = _context.HoaDons.Where(hoaDon => hoaDon.Mssv == sinhVien.Mssv).ToList();
+
+                foreach (HoaDon hoaDon in hoaDonList)
+                {
+                    _context.Remove(hoaDon);
+                    _context.SaveChanges();
+                }
+
+                _context.Remove(sinhVien);
+                _context.SaveChanges();
+            }
+
+            _context.Remove(_context.TaiKhoans.Find(id));
+            _context.SaveChanges();
+            return RedirectToAction("Index");
         }
     }
 }

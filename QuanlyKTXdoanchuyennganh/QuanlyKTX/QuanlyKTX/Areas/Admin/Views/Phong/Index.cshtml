@@ -1,4 +1,6 @@
-﻿@model IEnumerable<QuanlyKTX.Models.Phong>
+﻿@using QuanlyKTX.Models
+
+@model IEnumerable<QuanlyKTX.Models.Phong>
 @{
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
     ViewData["Title"] = "Quản lý Phòng ở";
@@ -177,19 +179,64 @@
 
 <!-- THANH ĐIỀU HƯỚNG TABS -->
 <div style="display: flex; gap: 15px; margin-bottom: 25px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;">
-    <button class="tab-btn active" onclick="switchTab('rooms', this)" style="background: none; border: none; font-weight: 700; font-size: 1rem; color: #4f46e5; cursor: pointer; padding: 10px 15px; border-bottom: 3px solid #4f46e5; display: flex; align-items: center; gap: 8px;">
+    @{
+        string active = "";
+        int tabIndex = 0;
+        string style = "font-weight: 600; color: #64748b; border-bottom: none;";
+
+        if (TempData["tabIndex"] != null) {
+            tabIndex = (int)TempData["tabIndex"];
+        }
+
+        if (tabIndex == 0) {
+            active = "active";
+            style = "font-weight: 700; color: #4f46e5; border-bottom: 3px solid #4f46e5;";
+        }
+    }
+
+    <button class="tab-btn @active" onclick="switchTab('rooms', this)" style="background: none; border: none; font-size: 1rem; cursor: pointer; padding: 10px 15px; display: flex; align-items: center; gap: 8px; @style">
         <i data-lucide="grid" style="width: 18px;"></i> Danh sách phòng
     </button>
-    <button class="tab-btn" onclick="switchTab('requests', this)" style="background: none; border: none; font-weight: 600; font-size: 1rem; color: #64748b; cursor: pointer; padding: 10px 15px; display: flex; align-items: center; gap: 8px;">
-        <i data-lucide="arrow-left-right" style="width: 18px;"></i> Xét duyệt chuyển phòng
-        <span style="background: #ef4444; color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem;">3</span>
+
+    @{
+        active = "";
+        style = "font-weight: 600; color: #64748b; border-bottom: none;";
+
+        if (tabIndex == 1) {
+            active = "active";
+            style = "font-weight: 700; color: #4f46e5; border-bottom: 3px solid #4f46e5;";
+        }
+    }
+
+    <button class="tab-btn @active" onclick="switchTab('requests', this)" style="background: none; border: none; font-size: 1rem; cursor: pointer; padding: 10px 15px; display: flex; align-items: center; gap: 8px; @style">
+        <i data-lucide="arrow-left-right" style="width: 18px;"></i> Xét duyệt đăng ký phòng
+
+        @{
+            int count = 0;
+
+            foreach (PhanAnh phanAnh in ViewBag.phanAnhList) {
+                if (phanAnh.TrangThai == "Chờ tiếp nhận") {
+                    count++;
+                }
+            }
+            
+            if (count > 0) {
+                <span style="background: #ef4444; color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem;">@count</span>
+            }
+        }
     </button>
 </div>
 
 <!-- ==============================================
      TAB 1: DANH SÁCH PHÒNG
      ============================================== -->
-<div id="tab-rooms" class="tab-content active" style="display: block;">
+@{
+    string display = "none";
+
+    if (tabIndex == 0) display = "block";
+}
+
+<div id="tab-rooms" class="tab-content active" style="display: @display;">
 
     <!-- THẺ THỐNG KÊ (Dynamic từ ViewBag) -->
     <section class="stats-filter-grid">
@@ -309,45 +356,80 @@
 </div>
 
 <!-- ==============================================
-     TAB 2: XÉT DUYỆT CHUYỂN PHÒNG (MOCK GIAO DIỆN)
+     TAB 2: XÉT DUYỆT ĐĂNG KÝ PHÒNG
      ============================================== -->
-<div id="tab-requests" class="tab-content" style="display: none;">
+@{
+    display = "none";
+
+    if (tabIndex == 1) display = "block";
+}
+
+<div id="tab-requests" class="tab-content" style="display: @display;">
     <div class="table-container">
         <table class="admin-table">
             <thead>
                 <tr>
                     <th style="padding-left: 25px;">Sinh Viên</th>
-                    <th>Từ Phòng</th>
-                    <th>Nguyện Vọng</th>
-                    <th>Lý Do & Ngày Gửi</th>
-                    <th>Trạng Thái</th>
+                    <th>Loại phòng</th>
+                    <th>Thời gian bắt đầu thuê</th>
+                    <th>Thời hạn hợp đồng</th>
+                    <th>Trạng thái</th>
                     <th style="padding-right: 25px;">Hành Động</th>
                 </tr>
             </thead>
             <tbody>
-                <!-- Giao diện giữ nguyên như bản nháp của ông để làm mẫu Demo -->
-                <tr>
-                    <td style="padding-left: 25px;">
-                        <div style="font-weight:700; color: #1e293b;">Nguyễn Văn A</div>
-                        <div style="font-size:12px; color: #64748b;">20250001</div>
-                    </td>
-                    <td><span style="font-weight:700; color: #ef4444;">B1-201</span></td>
-                    <td>
-                        <div style="color:#10b981; font-weight:700">Khu A</div>
-                        <div style="font-size:12px; color: #64748b;">Loại: 8 người</div>
-                    </td>
-                    <td style="max-width:300px;">
-                        <div style="font-size:11px; color:#94a3b8; margin-bottom:4px;">Ngày gửi: 23/10/2026</div>
-                        <div style="font-size: 13px; line-height: 1.4; color: #475569; font-style: italic;">"Phòng hiện tại quá ồn, ảnh hưởng việc học. Xin chuyển qua khu yên tĩnh."</div>
-                    </td>
-                    <td><span class="status-badge stt-partial">Chờ duyệt</span></td>
-                    <td style="padding-right: 25px;">
-                        <div style="display: flex; gap: 8px;">
-                            <button style="background: #10b981; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: 600;"><i data-lucide="check" style="width: 14px;"></i> Duyệt</button>
-                            <button style="background: #f1f5f9; color: #dc2626; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: 600;" onclick="openRejectModal()">Từ chối</button>
-                        </div>
-                    </td>
-                </tr>
+                @foreach (PhanAnh phanAnh in ViewBag.phanAnhList) {
+                    <tr>
+                        <td style="padding-left: 25px;">
+                            <div style="">@phanAnh.MssvNavigation.HoTen</div>
+                            <div style="font-size:12px;">@phanAnh.Mssv</div>
+                        </td>
+
+                        @{
+                            string[] content = phanAnh.NoiDung.Split('#');
+                            string tenLoaiPhong = "";
+
+                            foreach (LoaiPhong loaiPhong in @ViewBag.loaiPhongList) {
+                                if (loaiPhong.LoaiPhongId == int.Parse(content[0])) {
+                                    tenLoaiPhong = loaiPhong.TenLoai;
+                                }
+                            }
+                        }
+
+                        <td><span style="">@tenLoaiPhong</span></td>
+
+
+                        <td>
+                            <div style="">@content[1].Split(' ')[0]</div>
+                        </td>
+
+                        <td>
+                            <div style="">@content[2] tháng</div>
+                        </td>
+
+                        @{
+                            if (phanAnh.TrangThai == "Chờ tiếp nhận") {
+                                <td><span class="status-badge stt-partial">@phanAnh.TrangThai</span></td>
+                            }
+                            else {
+                                <td><span class="status-badge stt-full">@phanAnh.TrangThai</span></td>
+                            }
+                        }
+
+                        <td style="padding-right: 25px;">
+                            <div style="display: flex; gap: 8px;">
+                                <form action="/Admin/HopDong/CreateFromRequest" method="post">
+                                    <input name="mssv" value="@phanAnh.Mssv" hidden=""/>
+                                    <input name="startDate" value="@content[1].Split(' ')[0]" hidden=""/>
+                                    <input name="duration" value="@content[2]" hidden=""/>
+                                    <button style="background: #10b981; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: 600;"><i data-lucide="check" style="width: 14px;"></i> Duyệt</button>
+                                </form>
+
+                                <button style="background: #f1f5f9; color: #dc2626; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: 600;" onclick="openRejectModal(@phanAnh.PhanAnhId)">Từ chối</button>
+                            </div>
+                        </td>
+                    </tr>
+                }
             </tbody>
         </table>
     </div>
@@ -361,17 +443,18 @@
         <h3 style="margin: 0 0 15px 0; font-weight: 800; color: #1e293b; font-size: 18px; display: flex; align-items: center; gap: 8px;">
             <i data-lucide="alert-triangle" style="color: #ef4444;"></i> Từ chối yêu cầu
         </h3>
-        <p style="color: #64748b; margin-bottom: 15px; font-size: 13px;">Vui lòng nhập lý do từ chối để hệ thống gửi thông báo cho sinh viên.</p>
-        <textarea rows="4" style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; resize: none;" placeholder="VD: Hiện tại khu A đã hết phòng trống..."></textarea>
+
         <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 25px;">
             <button onclick="closeRejectModal()" style="background: #f1f5f9; color: #475569; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer;">Hủy</button>
-            <button onclick="closeRejectModal()" style="background: #ef4444; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer;">Xác nhận Từ chối</button>
+            <button onclick="denyRegister()" style="background: #ef4444; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer;">Xác nhận Từ chối</button>
         </div>
     </div>
 </div>
 
 @section Scripts {
     <script>
+        id = -1;
+
         if (typeof lucide !== 'undefined') { lucide.createIcons(); }
 
         function switchTab(tabId, btn) {
@@ -388,7 +471,15 @@
             btn.style.fontWeight = '700';
         }
 
-        function openRejectModal() { document.getElementById("rejectModal").style.display = "flex"; }
+        function openRejectModal(_id) { 
+            document.getElementById("rejectModal").style.display = "flex";
+            id = _id;
+        }
+
         function closeRejectModal() { document.getElementById("rejectModal").style.display = "none"; }
+
+        function denyRegister() {
+            window.location.href = '/Admin/Phong/TuChoiDangKyPhong?id=' + id;
+        }
     </script>
 }

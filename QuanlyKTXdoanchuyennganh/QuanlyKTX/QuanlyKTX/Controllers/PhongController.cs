@@ -89,13 +89,32 @@ namespace QuanlyKTX.Controllers
         }
 
         [HttpGet]
-        public IActionResult DangKyThue() => View();
+        public IActionResult DangKyThue()
+        {
+            string mssv = User.FindFirstValue(ClaimTypes.Name);
+            ViewBag.sinhVien = _context.SinhViens.Find(mssv);
+            ViewBag.loaiPhongList = _context.LoaiPhongs.ToList();
+            return View();
+        }
 
         [HttpPost]
         public async Task<IActionResult> XuLyDangKy(string MSSV, int LoaiPhongId, DateTime NgayBatDau, int ThoiHanThang)
         {
-            // Tạm thời giữ nguyên logic Redirect của bạn
-            return RedirectToAction("Index", "Home");
+            var pa = new PhanAnh
+            {
+                Mssv = MSSV,
+                PhongId = null,
+                LoaiSuCo = "Đăng ký phòng",
+                TieuDe = "",
+                NoiDung = $"{LoaiPhongId}#{NgayBatDau}#{ThoiHanThang}",
+                NgayGui = DateTime.Now,
+                TrangThai = "Chờ tiếp nhận"
+            };
+
+            _context.PhanAnhs.Add(pa);
+            await _context.SaveChangesAsync();
+            TempData["ThongBao"] = "Thành công! Yêu cầu đăng ký phòng đã được gửi tới Ban quản lý.";
+            return RedirectToAction("DangKyThue");
         }
     }
 }

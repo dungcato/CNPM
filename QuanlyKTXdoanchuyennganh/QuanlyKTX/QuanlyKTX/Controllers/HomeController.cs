@@ -1,9 +1,14 @@
 ﻿using System.Diagnostics;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using QuanlyKTX.Models;
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using System.Linq;
 
 namespace QuanlyKTX.Controllers
 {
@@ -17,8 +22,31 @@ namespace QuanlyKTX.Controllers
             _context = context;
         }
 
-        public IActionResult Index()
+        [AllowAnonymous] // Tạm mở cửa để chạy đoạn code bọc quyền bên dưới
+        public async Task<IActionResult> Index()
         {
+            // ============================================================
+            // 0. AUTO-LOGIN CHẾ ĐỘ DEV: TỰ ĐỘNG ĐĂNG NHẬP MSSV 23574801
+            // ============================================================
+            if (!User.Identity.IsAuthenticated)
+            {
+                var claims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.Name, "23574801"), // Bơm cứng MSSV này vào
+                    new Claim(ClaimTypes.Role, "SinhVien"), // Tên Role
+                    new Claim("VaiTroId", "3")              // ID Vai trò = 3 (Sinh Viên)
+                };
+
+                var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(identity));
+
+                // Cấp quyền xong thì load lại trang để nó ăn cái auth mới
+                return RedirectToAction("Index");
+            }
+
+            // ============================================================
+            // DỮ LIỆU TRANG CHỦ TỪ ĐÂY TRỞ XUỐNG GIỮ NGUYÊN
+            // ============================================================
             var mssvHienTai = User.FindFirstValue(ClaimTypes.Name);
             if (string.IsNullOrEmpty(mssvHienTai)) return RedirectToAction("Login", "Account");
 

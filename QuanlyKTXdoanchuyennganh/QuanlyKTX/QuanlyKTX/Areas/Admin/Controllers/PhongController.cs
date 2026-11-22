@@ -216,15 +216,5 @@ namespace QuanlyKTX.Areas.Admin.Controllers
             TempData["Success"] = "Đã duyệt yêu cầu chuyển phòng thành công!";
             return RedirectToAction("Index");
         }
-
-        public IActionResult TuChoiDangKyPhong(int id)
-        {
-            PhanAnh phanAnh = _context.PhanAnhs.Find(id);
-            phanAnh.TrangThai = "Đã từ chối";
-            _context.Update(phanAnh);
-            _context.SaveChanges();
-            TempData["tabIndex"] = 1;
-            return RedirectToAction("Index");
-        }
     }
 }

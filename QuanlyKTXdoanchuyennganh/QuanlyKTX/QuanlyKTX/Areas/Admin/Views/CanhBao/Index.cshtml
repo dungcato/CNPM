@@ -362,7 +362,7 @@
 
         <!-- CAMERA VIEWPORT ĐÃ ĐƯỢC LÀM TO RA -->
         <div class="detail-evidence">
-            <img id="detImage" src="http://127.0.0.1:5001/video_security_feed" class="evidence-img" onerror="this.src='https://placehold.co/1280x720/0f172a/38bdf8?text=VUI+LONG+BAT+PYTHON+(PORT+5001)'" />
+            <img id="detImage" src="http://localhost:5001/video_security_feed" class="evidence-img" onerror="this.src='https://placehold.co/1280x720/0f172a/38bdf8?text=VUI+LONG+BAT+PYTHON+(PORT+5001)'" />
 
             <div class="ai-overlay-box" id="aiOverlay">
                 > MODE: LIVE_TRACKING<br />
@@ -370,7 +370,6 @@
                 > STATUS: SCANNING...
             </div>
         </div>
-
 
         <div class="detail-info-grid">
             <div class="info-group">
@@ -401,85 +400,54 @@
         </div>
     </div>
 </section>
+
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         if (typeof lucide !== 'undefined') { lucide.createIcons(); }
 
         let currentAlertId = null;
-        let alertsStore = {};
-        let lastJsonHash = "";
-
-        // Ảnh SVG nhúng trực tiếp (không phụ thuộc file vật lý, không bao giờ lỗi 404)
-        const FALLBACK_IMG = "data:image/svg+xml;utf8," + encodeURIComponent(
-            '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100">' +
-            '<rect width="100" height="100" fill="#1e293b"/>' +
-            '<text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle" fill="#38bdf8" font-family="Arial, sans-serif" font-size="14" font-weight="bold">CAM</text>' +
-            '</svg>'
-        );
-
-        // Chuẩn hóa đường dẫn ảnh (xử lý null, chuỗi rỗng, đường dẫn thiếu '/', hoặc Base64 thô)
-        function resolveImageUrl(rawUrl) {
-            if (!rawUrl || rawUrl === "null" || rawUrl.trim() === "") {
-                return FALLBACK_IMG;
-            }
-            let url = rawUrl.trim().replace(/\\/g, "/");
-            if (url.startsWith("data:image") || url.startsWith("http://") || url.startsWith("https://")) {
-                return url;
-            }
-            if (url.startsWith("/9j/") || url.startsWith("iVBOR")) {
-                return "data:image/jpeg;base64," + url;
-            }
-            return url.startsWith("/") ? url : "/" + url;
-        }
 
         function loadAlerts() {
             fetch('/Admin/CanhBao/LayDanhSachSuCo')
                 .then(res => res.json())
                 .then(data => {
-                    const currentHash = JSON.stringify(data);
-                    if (currentHash === lastJsonHash) return; // Không vẽ lại nếu dữ liệu không đổi
-                    lastJsonHash = currentHash;
-
                     let html = '';
                     let pendingCount = 0, resolvedCount = 0;
-                    alertsStore = {};
 
                     if (!data || data.length === 0) {
                         html = '<div style="text-align:center; color:#94a3b8; margin-top:20px;">Hệ thống an toàn. Chưa có sự cố.</div>';
                     } else {
                         data.forEach(item => {
-                            alertsStore[item.id] = item;
                             if (!item.trangThai) { pendingCount++; } else { resolvedCount++; }
 
                             let cardClass = item.trangThai ? "alert-card resolved" : "alert-card unread";
                             let activeClass = (currentAlertId === item.id) ? "active" : "";
-                            let safeImg = resolveImageUrl(item.hinhAnh);
                             let badgeHtml = item.trangThai
                                 ? `<span style="font-size: 10px; font-weight: 700; background: #dcfce7; color: #16a34a; padding: 2px 6px; border-radius: 4px;">ĐÃ XỬ LÝ</span>`
                                 : `<span style="font-size: 10px; font-weight: 700; background: #fee2e2; color: #dc2626; padding: 2px 6px; border-radius: 4px;">KHẨN CẤP</span>`;
 
+                            // Truyền dữ liệu vào thẻ
                             html += `
-                                        <div class="${cardClass} ${activeClass}" data-id="${item.id}" onclick="selectAlert(${item.id}, this)">
-                                            <img src="${safeImg}" class="alert-thumb" onerror="this.onerror=null; this.src=FALLBACK_IMG;" />
-                                            <div class="alert-content" style="flex:1;">
-                                                <div class="alert-title">${item.noiDung || 'Cảnh báo an ninh'}</div>
-                                                <div class="alert-meta">
-                                                    <span><i data-lucide="clock" style="width: 12px"></i> ${item.gio || ''}</span>
-                                                </div>
-                                                ${badgeHtml}
-                                            </div>
+                                <div class="${cardClass} ${activeClass}" onclick="selectAlert(${item.id}, '${item.noiDung}', '${item.thoiGian}', '${item.gio}', '${item.hinhAnh}', ${item.trangThai})">
+                                    <img src="${item.hinhAnh}" class="alert-thumb" onerror="this.src='/images/no-image.png'" />
+                                    <div class="alert-content" style="flex:1;">
+                                        <div class="alert-title">${item.noiDung}</div>
+                                        <div class="alert-meta">
+                                            <span><i data-lucide="clock" style="width: 12px"></i> ${item.gio}</span>
                                         </div>
-                                    `;
+                                        ${badgeHtml}
+                                    </div>
+                                </div>
+                            `;
                         });
                     }
 
                     document.getElementById('alertListContainer').innerHTML = html;
                     document.getElementById('kpiPending').innerText = pendingCount;
                     document.getElementById('kpiResolved').innerText = resolvedCount;
-                    if (typeof lucide !== 'undefined') { lucide.createIcons(); }
-                })
-                .catch(err => console.error("Lỗi tải danh sách sự cố:", err));
+                    lucide.createIcons();
+                });
         }
 
         function resetToLivestream() {
@@ -490,14 +458,10 @@
             document.getElementById('detId').innerText = "Hệ thống Camera 5001 (YOLO Tracking)";
             document.getElementById('detTime').innerHTML = `<i data-lucide="clock" style="width: 16px; color: var(--accent);"></i> Real-time Livestream`;
 
+            // Lách cache để ép load lại luồng camera
             let timestamp = new Date().getTime();
-            const detImg = document.getElementById('detImage');
-            detImg.onerror = function () {
-                this.onerror = null;
-                this.src = 'https://placehold.co/1280x720/0f172a/38bdf8?text=VUI+LONG+BAT+PYTHON+(PORT+5001)';
-            };
-            detImg.src = "http://127.0.0.1:5001/video_security_feed?t=" + timestamp;
-            detImg.style.objectFit = "cover";
+            document.getElementById('detImage').src = "http://localhost:5001/video_security_feed?t=" + timestamp;
+            document.getElementById('detImage').style.objectFit = "cover";
 
             document.getElementById('detBadge').style.display = "none";
             document.getElementById('actionPanel').style.display = "none";
@@ -508,26 +472,18 @@
 
             document.getElementById('detStatusUI').innerHTML = '<i data-lucide="shield-check" style="width: 16px;"></i> Đang giám sát an toàn';
             document.getElementById('detStatusUI').style.color = "#10b981";
-            if (typeof lucide !== 'undefined') { lucide.createIcons(); }
+            lucide.createIcons();
         }
 
-        function selectAlert(id, cardEl) {
-            const item = alertsStore[id];
-            if (!item) return;
-
+        function selectAlert(id, title, date, time, img, isResolved) {
             currentAlertId = id;
 
-            document.getElementById('detTitle').innerText = item.noiDung || "Cảnh báo an ninh";
+            document.getElementById('detTitle').innerText = title;
             document.getElementById('detId').innerText = "ID Log Database: #" + id;
-            document.getElementById('detTime').innerHTML = `<i data-lucide="clock" style="width: 16px; color: var(--accent);"></i> ${item.thoiGian || ''} lúc ${item.gio || ''}`;
+            document.getElementById('detTime').innerHTML = `<i data-lucide="clock" style="width: 16px; color: var(--accent);"></i> ${date} lúc ${time}`;
 
-            const detImg = document.getElementById('detImage');
-            detImg.onerror = function () {
-                this.onerror = null;
-                this.src = FALLBACK_IMG;
-            };
-            detImg.src = resolveImageUrl(item.hinhAnh);
-            detImg.style.objectFit = "contain";
+            document.getElementById('detImage').src = img;
+            document.getElementById('detImage').style.objectFit = "contain"; // Ảnh bằng chứng thì thu nhỏ vừa vặn để xem hết
 
             document.getElementById('detBadge').style.display = "inline-flex";
 
@@ -538,7 +494,7 @@
             let actionPanel = document.getElementById('actionPanel');
             let statusUI = document.getElementById('detStatusUI');
 
-            if (item.trangThai) {
+            if (isResolved) {
                 statusUI.innerHTML = '<i data-lucide="check-circle" style="width: 16px;"></i> Đã giải quyết xong';
                 statusUI.style.color = "#10b981";
                 actionPanel.style.display = "none";
@@ -549,9 +505,9 @@
             }
 
             document.querySelectorAll('.alert-card').forEach(c => c.classList.remove('active'));
-            if (cardEl) cardEl.classList.add('active');
+            if(event) event.currentTarget.classList.add('active');
 
-            if (typeof lucide !== 'undefined') { lucide.createIcons(); }
+            lucide.createIcons();
         }
 
         function updateStatus() {
@@ -562,19 +518,18 @@
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: `id=${currentAlertId}`
             })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        Swal.fire("Thành công", data.message, "success");
-                        lastJsonHash = ""; // Ép tải lại trạng thái mới ngay lập tức
-                        loadAlerts();
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire("Thành công", data.message, "success");
+                    loadAlerts();
 
-                        document.getElementById('detStatusUI').innerHTML = '<i data-lucide="check-circle" style="width: 16px;"></i> Đã giải quyết xong';
-                        document.getElementById('detStatusUI').style.color = "#10b981";
-                        document.getElementById('actionPanel').style.display = "none";
-                        if (typeof lucide !== 'undefined') { lucide.createIcons(); }
-                    }
-                });
+                    document.getElementById('detStatusUI').innerHTML = '<i data-lucide="check-circle" style="width: 16px;"></i> Đã giải quyết xong';
+                    document.getElementById('detStatusUI').style.color = "#10b981";
+                    document.getElementById('actionPanel').style.display = "none";
+                    lucide.createIcons();
+                }
+            });
         }
 
         loadAlerts();

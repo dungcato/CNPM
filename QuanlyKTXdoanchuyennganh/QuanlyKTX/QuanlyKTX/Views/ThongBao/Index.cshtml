@@ -13,16 +13,11 @@
         </div>
     </section>
 
-    <section class="stats-filter-grid dashboard-fade-in delay-1">
+    <section class="stats-filter-grid dashboard-fade-in delay-1" style="display:grid; grid-template-columns:1fr 1fr 1fr;">
         <div class="stat-filter-card all active">
             <div class="stat-filter-icon"><i data-lucide="list"></i></div>
             <div class="stat-filter-label">Tất cả</div>
             <div class="stat-filter-value">@ViewBag.Total</div>
-        </div>
-        <div class="stat-filter-card unread">
-            <div class="stat-filter-icon"><i data-lucide="bell-dot"></i></div>
-            <div class="stat-filter-label">Chưa đọc</div>
-            <div class="stat-filter-value">@ViewBag.UnreadCount</div>
         </div>
         <div class="stat-filter-card finance">
             <div class="stat-filter-icon"><i data-lucide="receipt"></i></div>
@@ -59,7 +54,7 @@
                 else if (item.LoaiThongBao == "Bảo trì") { categoryClass = "maintenance"; iconName = "wrench"; }
                 else { categoryClass = "event"; iconName = "megaphone"; }
 
-                string unreadClass = (item.NgayGui >= DateTime.Now.AddDays(-1)) ? "unread" : "";
+                string unreadClass = "";
 
                 @* Bọc toàn bộ notification-item vào thẻ a để nhấn vào đâu cũng xem được chi tiết *@
                 <a asp-action="ChiTiet" asp-controller="ThongBao" asp-route-id="@item.ThongBaoId" style="text-decoration: none; color: inherit; display: block; margin-bottom: 15px;">

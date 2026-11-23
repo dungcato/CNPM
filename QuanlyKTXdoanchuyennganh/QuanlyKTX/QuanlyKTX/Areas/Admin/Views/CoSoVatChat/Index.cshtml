@@ -172,8 +172,26 @@
     }
 
     .badge-danger-soft {
-        background: #fee2e2;
-        color: #ef4444;
+        background: #dc3545;
+        color: white;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 700;
+    }
+
+    .badge-success-soft {
+        background: #28a745;
+        color: white;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 700;
+    }
+
+    .badge-warning-soft {
+        background: #ffc107;
+        color: white;
         padding: 6px 12px;
         border-radius: 20px;
         font-size: 0.8rem;
@@ -330,38 +348,84 @@
                         var brokenRooms = brokenItems.GroupBy(x => x.PhongId ?? "Kho chung").ToList();
                     }
 
-                    @if (brokenRooms.Any())
+                    @foreach (var room in brokenRooms)
                     {
-                        @foreach (var room in brokenRooms)
-                        {
-                            // Tổng số thiết bị loại này có trong phòng đó
-                            var roomTotalItems = group.Count(x => (x.PhongId ?? "Kho chung") == room.Key);
+                        // Tổng số thiết bị loại này có trong phòng đó
+                        var roomTotalItems = group.Count(x => (x.PhongId ?? "Kho chung") == room.Key);
 
-                            <div class="room-broken-item">
-                                <div style="display: flex; align-items: center; gap: 12px;">
-                                    <i data-lucide="door-closed" style="color: #94a3b8; width: 22px;"></i>
-                                    <span style="font-weight: 700; color: #475569; font-size: 1.05rem;">
-                                        @(room.Key == "Kho chung" ? "Kho lưu trữ" : $"Phòng {room.Key}")
-                                    </span>
-                                </div>
-                                <div style="display: flex; align-items: center; gap: 15px;">
-                                    <span class="badge-danger-soft">Hỏng (@room.Count()/@roomTotalItems)</span>
-
-                                    <!-- Nút nhỏ để đi vào chi tiết/sửa một vật tư hỏng cụ thể trong phòng -->
-                                    <a href="/Admin/CoSoVatChat/Edit/@room.First().VatTuId" title="Sửa nhanh vật tư này" style="color: #94a3b8; transition: 0.2s;">
-                                        <i data-lucide="chevron-right" style="width: 20px;"></i>
-                                    </a>
-                                </div>
+                        <div class="room-broken-item">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <i data-lucide="door-closed" style="color: #94a3b8; width: 22px;"></i>
+                                <span style="font-weight: 700; color: #475569; font-size: 1.05rem;">
+                                    @(room.Key == "Kho chung" ? "Kho lưu trữ" : $"Phòng {room.Key}")
+                                </span>
                             </div>
-                        }
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                <span class="badge-danger-soft">Hỏng (@room.Count()/@roomTotalItems)</span>
+
+                                <!-- Nút nhỏ để đi vào chi tiết/sửa một vật tư hỏng cụ thể trong phòng -->
+                                <a href="/Admin/CoSoVatChat/Edit/@room.First().VatTuId" title="Sửa nhanh vật tư này" style="color: #94a3b8; transition: 0.2s;">
+                                    <i data-lucide="chevron-right" style="width: 20px;"></i>
+                                </a>
+                            </div>
+                        </div>
                     }
-                    else
+
+                    @{
+                        // Lọc ra danh sách các vật tư đang bị hỏng của nhóm này
+                        var fixItems = group.Where(x => x.TrangThai == "Đang bảo trì").ToList();
+                        var fixRooms = fixItems.GroupBy(x => x.PhongId ?? "Kho chung").ToList();
+                    }
+
+                    @foreach (var room in fixRooms)
                     {
-                        <!-- Nếu không có cái nào hỏng -->
-                        <div style="text-align: center; padding: 50px 20px; background: white; border-radius: 12px; border: 1px dashed #cbd5e1;">
-                            <i data-lucide="check-circle-2" style="width: 50px; height: 50px; color: #10b981; margin-bottom: 15px; opacity: 0.8;"></i>
-                            <p style="margin: 0; color: #475569; font-weight: 600; font-size: 1.05rem;">Tuyệt vời!</p>
-                            <p style="margin: 5px 0 0 0; color: #94a3b8; font-size: 0.9rem;">Toàn bộ thiết bị nhóm này đang hoạt động tốt.</p>
+                        // Tổng số thiết bị loại này có trong phòng đó
+                        var roomTotalItems = group.Count(x => (x.PhongId ?? "Kho chung") == room.Key);
+
+                        <div class="room-broken-item">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <i data-lucide="door-closed" style="color: #94a3b8; width: 22px;"></i>
+                                <span style="font-weight: 700; color: #475569; font-size: 1.05rem;">
+                                    @(room.Key == "Kho chung" ? "Kho lưu trữ" : $"Phòng {room.Key}")
+                                </span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                <span class="badge-warning-soft">Đang bảo trì (@room.Count()/@roomTotalItems)</span>
+
+                                <!-- Nút nhỏ để đi vào chi tiết/sửa một vật tư hỏng cụ thể trong phòng -->
+                                <a href="/Admin/CoSoVatChat/Edit/@room.First().VatTuId" title="Sửa nhanh vật tư này" style="color: #94a3b8; transition: 0.2s;">
+                                    <i data-lucide="chevron-right" style="width: 20px;"></i>
+                                </a>
+                            </div>
+                        </div>
+                    }
+
+                    @{
+                        // Lọc ra danh sách các vật tư đang bị hỏng của nhóm này
+                        var goodItems = group.Where(x => x.TrangThai == "Tốt").ToList();
+                        var goodRooms = goodItems.GroupBy(x => x.PhongId ?? "Kho chung").ToList();
+                    }
+
+                    @foreach (var room in goodRooms)
+                    {
+                        // Tổng số thiết bị loại này có trong phòng đó
+                        var roomTotalItems = group.Count(x => (x.PhongId ?? "Kho chung") == room.Key);
+
+                        <div class="room-broken-item">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <i data-lucide="door-closed" style="color: #94a3b8; width: 22px;"></i>
+                                <span style="font-weight: 700; color: #475569; font-size: 1.05rem;">
+                                    @(room.Key == "Kho chung" ? "Kho lưu trữ" : $"Phòng {room.Key}")
+                                </span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                <span class="badge-success-soft">Tốt (@room.Count()/@roomTotalItems)</span>
+
+                                <!-- Nút nhỏ để đi vào chi tiết/sửa một vật tư hỏng cụ thể trong phòng -->
+                                <a href="/Admin/CoSoVatChat/Edit/@room.First().VatTuId" title="Sửa nhanh vật tư này" style="color: #94a3b8; transition: 0.2s;">
+                                    <i data-lucide="chevron-right" style="width: 20px;"></i>
+                                </a>
+                            </div>
                         </div>
                     }
                 </div>

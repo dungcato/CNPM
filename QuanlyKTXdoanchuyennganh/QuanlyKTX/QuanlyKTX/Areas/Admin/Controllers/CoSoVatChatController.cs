@@ -91,7 +91,6 @@ namespace QuanlyKTX.Areas.Admin.Controllers
 
         // 3. XỬ LÝ THÊM MỚI (POST)
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(VatTu vt)
         {
             try
@@ -122,7 +121,6 @@ namespace QuanlyKTX.Areas.Admin.Controllers
 
         // 5. XỬ LÝ SỬA (POST)
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(VatTu vt)
         {
             try
@@ -151,7 +149,6 @@ namespace QuanlyKTX.Areas.Admin.Controllers
 
         // 6. XÓA TÀI SẢN (POST)
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
             var vt = await _context.VatTus.FindAsync(id);

@@ -23,6 +23,7 @@ namespace QuanlyKTX.Areas.Admin.Controllers
         public async Task<IActionResult> Index(string search, string searchToaNha, string searchLoai)
         {
             var query = _context.PhanAnhs
+                .Where(phanAnh => phanAnh.LoaiSuCo != "Đăng ký phòng")
                 .Include(p => p.MssvNavigation)
                 .Include(p => p.Phong)
                 .AsQueryable();

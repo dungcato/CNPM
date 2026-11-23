@@ -165,15 +165,32 @@
 
             <div class="content-admin-scroll">
                 <!-- HIỂN THỊ THÔNG BÁO LỖI/THÀNH CÔNG -->
-                @if (
-                    ViewContext.RouteData.Values["Controller"]?.ToString() != "Toa" && 
-                    ViewContext.RouteData.Values["Controller"]?.ToString() != "Phong" && 
-                    ViewContext.RouteData.Values["Controller"]?.ToString() != "SinhVien" && 
-                    TempData["Error"] != null)
-                {
-                    <div style="background: #fee2e2; color: #b91c1c; padding: 15px; margin: 20px; border-radius: 8px; border: 1px solid #fecaca;">
-                        <i data-lucide="alert-circle" style="vertical-align: middle; width: 18px;"></i> @TempData["Error"]
-                    </div>
+                @{
+                    if (TempData["Error"] != null) {
+                        string controller = ViewContext.RouteData.Values["Controller"]?.ToString();
+
+                        string[] hideArray = {
+                            "Toa",
+                            "Phong",
+                            "SinhVien",
+                            "DienNuoc"
+                        };
+
+                        bool show = true;
+
+                        foreach (string name in hideArray) {
+                            if (controller == name) {
+                                show = false;
+                            }
+                        }
+
+                        if (show)
+                        {
+                            <div style="background: #fee2e2; color: #b91c1c; padding: 15px; margin: 20px; border-radius: 8px; border: 1px solid #fecaca;">
+                                <i data-lucide="alert-circle" style="vertical-align: middle; width: 18px;"></i> @TempData["Error"]
+                            </div>
+                        }
+                    }
                 }
 
                 <div class="admin-content-area">

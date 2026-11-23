@@ -439,29 +439,37 @@
                 <select name="searchLoai">
                     <option value="">Tất cả Loại</option>
                     <!-- SỬA LỖI SELECTED OPTION CHO CHUẨN XÁC 100% -->
-                    @if (ViewBag.SearchLoai == "Hỏng Điện")
+                    @if (ViewBag.SearchLoai == "Điện")
                     {
-                        <option value="Hỏng Điện" selected>Hỏng Điện</option>
+                        <option value="Điện" selected>Hỏng Điện</option>
                     }
                     else
                     {
-                        <option value="Hỏng Điện">Hỏng Điện</option>
+                        <option value="Điện">Hỏng Điện</option>
                     }
-                    @if (ViewBag.SearchLoai == "Hỏng Nước")
+                    @if (ViewBag.SearchLoai == "Nước")
                     {
-                        <option value="Hỏng Nước" selected>Hỏng Nước</option>
-                    }
-                    else
-                    {
-                        <option value="Hỏng Nước">Hỏng Nước</option>
-                    }
-                    @if (ViewBag.SearchLoai == "Hỏng Vật tư")
-                    {
-                        <option value="Hỏng Vật tư" selected>Hỏng Vật tư</option>
+                        <option value="Nước" selected>Hỏng Nước</option>
                     }
                     else
                     {
-                        <option value="Hỏng Vật tư">Hỏng Vật tư</option>
+                        <option value="Nước">Hỏng Nước</option>
+                    }
+                    @if (ViewBag.SearchLoai == "Vật tư")
+                    {
+                        <option value="Vật tư" selected>Hỏng Vật tư</option>
+                    }
+                    else
+                    {
+                        <option value="Vật tư">Hỏng Vật tư</option>
+                    }
+                    @if (ViewBag.SearchLoai == "Bảo mật")
+                    {
+                        <option value="Bảo mật" selected>Bảo mật</option>
+                    }
+                    else
+                    {
+                        <option value="Bảo mật">Bảo mật</option>
                     }
                     @if (ViewBag.SearchLoai == "Khác")
                     {
